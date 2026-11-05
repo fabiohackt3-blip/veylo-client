@@ -11,7 +11,9 @@ import java.util.Properties;
 final class HudSettings {
     enum Module {
         FPS("FPS", 8), COORDINATES("Koordinaten", 30), PING("Ping", 52),
-        KEYS("Tasteneingaben", 74), ARMOR("Rüstung", 119);
+        KEYS("Tasteneingaben", 74), ARMOR("Rüstung", 119),
+        DIRECTION("Himmelsrichtung", 148), SPEED("Tempo", 170), CLOCK("Uhrzeit", 192),
+        MEMORY("Speicher", 214);
 
         final String label;
         final int startY;
@@ -29,6 +31,7 @@ final class HudSettings {
         int percent = 100;
 
         Widget(Module module) {
+            enabled = module.ordinal() <= Module.ARMOR.ordinal();
             y = module.startY;
         }
     }
@@ -55,7 +58,7 @@ final class HudSettings {
         settings.visible = Boolean.parseBoolean(data.getProperty("visible", "true"));
         settings.widgets.forEach((module, widget) -> {
             String key = module.name().toLowerCase(Locale.ROOT) + ".";
-            widget.enabled = Boolean.parseBoolean(data.getProperty(key + "enabled", "true"));
+            widget.enabled = Boolean.parseBoolean(data.getProperty(key + "enabled", Boolean.toString(widget.enabled)));
             widget.x = integer(data, key + "x", widget.x, 0, 16384);
             widget.y = integer(data, key + "y", widget.y, 0, 16384);
             widget.percent = integer(data, key + "scale", 100, 60, 180);
