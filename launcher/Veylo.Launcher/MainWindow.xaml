@@ -1,96 +1,227 @@
 <Window x:Class="Veylo.Launcher.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Veylo Client" Width="820" Height="610" MinWidth="740" MinHeight="550"
-        WindowStartupLocation="CenterScreen" Background="#10101A" Foreground="#F5EEFF"
-        FontFamily="Segoe UI">
+        Title="Veylo Client" Width="1080" Height="780" MinWidth="760" MinHeight="560"
+        WindowStartupLocation="CenterScreen" Background="#0A1118" Foreground="#EBF4FA"
+        FontFamily="Segoe UI" UseLayoutRounding="True" Closed="WindowClosed" Closing="WindowClosing">
     <Window.Resources>
+        <SolidColorBrush x:Key="Accent" Color="#66D2FF"/>
+        <SolidColorBrush x:Key="Muted" Color="#A3B6C7"/>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#EBF4FA"/>
+        </Style>
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#33284B" />
-            <Setter Property="Foreground" Value="#F5EEFF" />
-            <Setter Property="Padding" Value="16,10" />
-            <Setter Property="Margin" Value="0,0,8,0" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Background" Value="#1B2B39"/>
+            <Setter Property="Foreground" Value="#E8F6FF"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="ButtonFill" Background="{TemplateBinding Background}" CornerRadius="8"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border x:Name="Fill" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}" CornerRadius="7"
+                                BorderThickness="1" BorderBrush="#365266">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonFill" Property="Opacity" Value="0.86" />
+                                <Setter TargetName="Fill" Property="BorderBrush" Value="#66D2FF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Fill" Property="Opacity" Value=".76"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="ButtonFill" Property="Opacity" Value="0.48" />
+                                <Setter TargetName="Fill" Property="Opacity" Value=".46"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="Navigation" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="0,0,0,7"/>
+            <Setter Property="Background" Value="#111C26"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="9,6"/>
+            <Setter Property="Background" Value="#0B141D"/>
+            <Setter Property="Foreground" Value="#E8F6FF"/>
+            <Setter Property="BorderBrush" Value="#365266"/>
+            <Setter Property="CaretBrush" Value="White"/>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#DBE8F1"/>
+            <Setter Property="Margin" Value="0,8"/>
+        </Style>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="#131F29"/>
+            <Setter Property="BorderBrush" Value="#293E4D"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+        <Style x:Key="Title" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="27"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,13"/>
+        </Style>
     </Window.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Margin="38,28">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <DockPanel Margin="0,0,0,19">
-                <TextBlock DockPanel.Dock="Right" Text="BUILD 0.1.0" Foreground="#AE99CC"
-                           VerticalAlignment="Center" FontSize="12" />
-                <TextBlock Text="V E Y L O" FontWeight="Bold" FontSize="19" Foreground="#D5B8FF" />
-            </DockPanel>
-            <Border Grid.Row="1" CornerRadius="18" Padding="30,24" Margin="0,0,0,18">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#402867" Offset="0"/>
-                        <GradientStop Color="#241C39" Offset="0.65"/>
-                        <GradientStop Color="#191626" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.Background>
-                <StackPanel>
-                    <TextBlock Text="MINECRAFT JAVA   /   1.21.11 + FABRIC" FontSize="12" Foreground="#E0C9FF" />
-                    <TextBlock Text="Veylo Client" FontSize="46" FontWeight="Bold" Margin="0,2,0,2" />
-                    <TextBlock Text="Öffne dein Veylo-Menü im Spiel mit rechter Shift-Taste." Foreground="#D6C7E8" />
+    <Grid>
+        <Grid.ColumnDefinitions><ColumnDefinition Width="174"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <Border Background="#101922" BorderThickness="0,0,1,0" BorderBrush="#293E4D">
+            <DockPanel Margin="15,24,15,14">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5,0,0,24">
+                    <Path Data="M0,0 L8,0 L18,18 L28,0 L36,0 L18,30 Z" Fill="{StaticResource Accent}" Width="33" Height="29" Stretch="Uniform"/>
+                    <TextBlock Text="VEYLO" FontSize="22" FontWeight="Bold" Margin="8,0,0,0"/>
                 </StackPanel>
-            </Border>
-            <Border Grid.Row="2" CornerRadius="14" Background="#1C1828" Padding="20">
+                <TextBlock DockPanel.Dock="Bottom" Text="VEYLO · 0.2.0" Foreground="{StaticResource Muted}" Margin="7,12"/>
+                <StackPanel x:Name="Navigation">
+                    <Button Style="{StaticResource Navigation}" Content="Home" Tag="Home" Click="Navigate"/>
+                    <Button Style="{StaticResource Navigation}" Content="Versionen" Tag="Versions" Click="Navigate"/>
+                    <Button Style="{StaticResource Navigation}" Content="Mods" Tag="Mods" Click="Navigate"/>
+                    <Button Style="{StaticResource Navigation}" Content="Profile" Tag="Profiles" Click="Navigate"/>
+                    <Button Style="{StaticResource Navigation}" Content="Accounts" Tag="Accounts" Click="Navigate"/>
+                    <Button Style="{StaticResource Navigation}" Content="Einstellungen" Tag="Settings" Click="Navigate"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <Grid Grid.Column="1" Margin="24,16,24,16">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <DockPanel Margin="0,0,0,12" LastChildFill="False">
+                <TextBlock DockPanel.Dock="Left" Text="MINECRAFT JAVA EDITION" Foreground="{StaticResource Muted}" VerticalAlignment="Center"/>
+                <Button DockPanel.Dock="Right" Content="Microsoft-Konto" Tag="Accounts" Click="Navigate"/>
+            </DockPanel>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="28" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="ProfilePanel">
-                        <TextBlock Text="SPIELPROFIL" Foreground="#B7A4CC" FontWeight="SemiBold" />
-                        <ComboBox x:Name="ProfilePicker" DisplayMemberPath="Name" Margin="0,8,0,8"
-                                  Height="31" SelectionChanged="ProfileChanged" />
-                        <DockPanel>
-                            <Button DockPanel.Dock="Right" Content="Hinzufügen" Click="AddProfile" Margin="8,0,0,0" />
-                            <TextBox x:Name="ProfileName" MaxLength="32" Padding="7" VerticalContentAlignment="Center"
-                                     ToolTip="Name des neuen Profils" />
-                        </DockPanel>
-                        <TextBlock x:Name="RamLabel" Text="Arbeitsspeicher" Margin="0,14,0,3" />
-                        <Slider x:Name="Ram" Minimum="2048" Maximum="12288" Value="4096" TickFrequency="512"
-                                IsSnapToTickEnabled="True" ValueChanged="RamChanged" />
+                    <StackPanel x:Name="HomePage">
+                        <Border Height="216" Background="#112A3D" CornerRadius="12" ClipToBounds="True">
+                            <Grid>
+                                <Viewbox Stretch="Fill" Opacity=".58" IsHitTestVisible="False">
+                                    <Canvas Width="820" Height="216">
+                                        <Path Fill="#214761" Data="M0,155 L104,91 L147,116 L221,55 L300,141 L393,99 L465,130 L595,42 L661,93 L726,27 L820,97 L820,216 L0,216 Z"/>
+                                        <Path Fill="#39728B" Data="M535,85 L595,42 L624,64 L600,60 L582,68 L568,69 Z M683,67 L726,27 L766,57 L745,54 L731,44 L719,52 Z"/>
+                                        <Path Fill="#122637" Data="M0,149 L83,132 L126,157 L227,138 L268,158 L386,146 L454,169 L568,134 L645,151 L762,119 L820,147 L820,216 L0,216 Z"/>
+                                        <Path Fill="#10202C" Data="M0,177 L171,175 L251,184 L386,180 L534,190 L670,171 L820,175 L820,216 L0,216 Z"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <StackPanel VerticalAlignment="Center" Margin="26,0">
+                                    <TextBlock Text="V E Y L O   C L I E N T" FontSize="34" FontWeight="Bold"/>
+                                    <TextBlock Text="Minecraft starten und dein Spielprofil verwalten" Margin="2,8,0,0"
+                                               Foreground="#CFDFE9" TextWrapping="Wrap" FontSize="15"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Margin="0,12,0,15">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,10,0">
+                                    <TextBlock Text="Spielprofil" Foreground="{StaticResource Muted}"/>
+                                    <ComboBox x:Name="ProfilePicker" DisplayMemberPath="Name" Margin="0,6,0,0" SelectionChanged="ProfileChanged"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                                    <TextBlock Text="Version" Foreground="{StaticResource Muted}"/>
+                                    <TextBlock x:Name="HomeVersion" Text="1.21.11 · Veylo / Fabric" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button x:Name="PlayButton" Grid.Column="2" Content="Spielen" Click="Play"
+                                        Background="#66D2FF" Foreground="#091923" MinWidth="108" IsEnabled="False"/>
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Veylo 0.2.0" Style="{StaticResource Title}"/>
+                                <TextBlock Text="Neues Dashboard, Versionsprofile, Download-Fortschritt und Discord-Aktivität."
+                                           Foreground="{StaticResource Muted}" TextWrapping="Wrap"/>
+                                <WrapPanel Margin="0,16,0,0">
+                                    <Button Content="Versionen verwalten" Tag="Versions" Click="Navigate" Margin="0,0,8,6"/>
+                                    <Button Content="Mods verwalten" Tag="Mods" Click="Navigate" Margin="0,0,8,6"/>
+                                    <Button Content="Einstellungen" Tag="Settings" Click="Navigate" Margin="0,0,0,6"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="MICROSOFT-KONTO" Foreground="#B7A4CC" FontWeight="SemiBold" />
-                        <TextBlock x:Name="Account" Text="Nicht angemeldet" Margin="0,8,0,8" />
-                        <WrapPanel>
-                            <Button x:Name="SignInButton" Content="Anmelden" Click="SignIn" />
-                            <Button x:Name="PlayButton" Content="Spielen" Click="Play"
-                                    Background="#B88DF9" Foreground="#180D28" IsEnabled="False" />
-                        </WrapPanel>
-                        <TextBlock x:Name="Status" Text="Bereit" TextWrapping="Wrap" Margin="0,13,0,0"
-                                   Foreground="#D5C4EA" AutomationProperties.LiveSetting="Polite" />
+                    <StackPanel x:Name="VersionsPage" Visibility="Collapsed">
+                        <TextBlock Text="Versionen" Style="{StaticResource Title}"/>
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel x:Name="VersionControls">
+                                <TextBlock Text="Minecraft-Version für das aktive Profil" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="VersionPicker" Margin="0,9,0,9" SelectionChanged="VersionChanged"/>
+                                <CheckBox x:Name="Snapshots" Content="Snapshots anzeigen" Checked="FilterVersions" Unchecked="FilterVersions"/>
+                                <CheckBox x:Name="VeyloMode" Content="Veylo mit Fabric für Minecraft 1.21.11"
+                                          Checked="LoaderChanged" Unchecked="LoaderChanged"/>
+                                <TextBlock x:Name="VersionInfo" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,6,0,12"/>
+                                <Button Content="Offizielle Versionsliste aktualisieren" Click="ReloadVersions" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
+                    <StackPanel x:Name="ModsPage" Visibility="Collapsed">
+                        <TextBlock Text="Mods" Style="{StaticResource Title}"/>
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel x:Name="ModsControls">
+                                <TextBlock x:Name="ModsInfo" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <ListBox x:Name="ModList" Background="#0B141D" Foreground="#E8F6FF" BorderBrush="#365266" Height="190"/>
+                                <WrapPanel Margin="0,12,0,0">
+                                    <Button Content="JAR importieren" Click="ImportMod" Margin="0,0,8,6"/>
+                                    <Button Content="Aktivieren / deaktivieren" Click="ToggleMod" Margin="0,0,8,6"/>
+                                    <Button Content="Mod-Ordner öffnen" Click="OpenMods" Margin="0,0,0,6"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel x:Name="ProfilesPage" Visibility="Collapsed">
+                        <TextBlock Text="Spielprofile" Style="{StaticResource Title}"/>
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel x:Name="ProfilePanel">
+                                <ComboBox x:Name="ManageProfiles" DisplayMemberPath="Name" SelectionChanged="ManagedProfileChanged" Margin="0,0,0,12"/>
+                                <TextBlock Text="Neues Profil"/>
+                                <TextBox x:Name="ProfileName" MaxLength="32" Margin="0,7,0,9"/>
+                                <Button Content="Profil hinzufügen" Click="AddProfile" HorizontalAlignment="Left"/>
+                                <TextBlock x:Name="RamLabel" Text="Arbeitsspeicher" Margin="0,18,0,4"/>
+                                <Slider x:Name="Ram" Minimum="2048" Maximum="12288" Value="4096" TickFrequency="512"
+                                        IsSnapToTickEnabled="True" ValueChanged="RamChanged"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel x:Name="AccountsPage" Visibility="Collapsed">
+                        <TextBlock Text="Accounts" Style="{StaticResource Title}"/>
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="MICROSOFT-KONTO" Foreground="{StaticResource Muted}"/>
+                                <TextBlock x:Name="Account" Text="Nicht angemeldet" Margin="0,8,0,13" FontSize="19"/>
+                                <WrapPanel>
+                                    <Button x:Name="SignInButton" Content="Anmelden / Konto wechseln" Click="SignIn" Margin="0,0,8,0"/>
+                                    <Button x:Name="SignOutButton" Content="Abmelden" Click="SignOut" IsEnabled="False"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel x:Name="SettingsPage" Visibility="Collapsed">
+                        <TextBlock Text="Einstellungen" Style="{StaticResource Title}"/>
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Discord Rich Presence" FontSize="18" FontWeight="SemiBold"/>
+                                <TextBlock Text="Füge die Application ID deiner Veylo-Discord-App ein. Discord erhält nur den Launcher-Status und die Minecraft-Version."
+                                           TextWrapping="Wrap" Margin="0,8,0,8" Foreground="{StaticResource Muted}"/>
+                                <CheckBox x:Name="DiscordEnabled" Content="Discord-Aktivität aktivieren"/>
+                                <TextBox x:Name="DiscordId" AutomationProperties.Name="Discord Application ID" MaxLength="20" Margin="0,0,0,9"/>
+                                <Button Content="Discord-Einstellungen speichern" Click="SaveDiscord" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+            <Border Grid.Row="2" Style="{StaticResource Card}" Padding="12" Margin="0,12,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center" Margin="0,0,10,0">
+                        <TextBlock x:Name="Status" Text="Bereit" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/>
+                        <ProgressBar x:Name="DownloadProgress" Height="5" Margin="0,8,0,0" Visibility="Collapsed"
+                                     Foreground="{StaticResource Accent}" Maximum="100"/>
+                    </StackPanel>
+                    <Button x:Name="CancelButton" Grid.Column="1" Content="Abbrechen" Click="CancelInstall" Visibility="Collapsed"/>
                 </Grid>
             </Border>
         </Grid>
-    </ScrollViewer>
+    </Grid>
 </Window>

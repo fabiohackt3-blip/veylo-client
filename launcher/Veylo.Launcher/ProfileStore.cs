@@ -5,6 +5,8 @@ namespace Veylo.Launcher;
 
 public sealed record Profile(Guid Id, string Name)
 {
+    public string VersionId { get; set; } = GameVersion.Default.Id;
+    public bool UseVeylo { get; set; } = true;
     public int RamMb { get; set; } = 4096;
 }
 
@@ -25,7 +27,11 @@ internal sealed class ProfileStore(string directory)
             throw new InvalidDataException("Die gespeicherten Profile sind ungültig.");
 
         foreach (var profile in profiles)
+        {
             profile.RamMb = Math.Clamp(profile.RamMb, 2048, 12288);
+            if (!GameVersion.IsSafeId(profile.VersionId)) profile.VersionId = GameVersion.Default.Id;
+            profile.UseVeylo &= profile.VersionId == GameVersion.Default.Id;
+        }
         return profiles;
     }
 
