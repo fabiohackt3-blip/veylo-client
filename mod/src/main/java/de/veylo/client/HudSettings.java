@@ -1,6 +1,7 @@
 package de.veylo.client;
 
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -141,7 +142,11 @@ final class HudSettings {
             try (var writer = Files.newBufferedWriter(temporary)) {
                 data.store(writer, "Veylo Client HUD");
             }
-            Files.move(temporary, path, StandardCopyOption.REPLACE_EXISTING);
+            try {
+                Files.move(temporary, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException ignored) {
+                Files.move(temporary, path, StandardCopyOption.REPLACE_EXISTING);
+            }
         } finally {
             Files.deleteIfExists(temporary);
         }

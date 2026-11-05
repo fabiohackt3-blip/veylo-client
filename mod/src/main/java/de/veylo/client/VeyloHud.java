@@ -127,8 +127,9 @@ final class VeyloHud {
                     if (y > 24) break;
                     String name = effect.getEffectType().value().getName().getString();
                     String duration = effect.isInfinite() ? "" : "  " + effect.getDuration() / 20 + "s";
-                    label(context, client, client.textRenderer.trimToWidth(name + duration, width - 14),
-                            5, y, VeyloTheme.TEXT);
+                    label(context, client, client.textRenderer.trimToWidth(name + duration, width - 17),
+                            11, y, VeyloTheme.TEXT);
+                    context.fill(5, y + 3, 8, y + 5, accent);
                     y += 10;
                 }
                 if (y == 4) label(context, client, "Keine Effekte", 5, y, accent);
@@ -142,10 +143,11 @@ final class VeyloHud {
             }
             case ARMOR -> {
                 for (int i = 0; i < ARMOR.length; i++) {
-                    int x = 4 + i * 18;
+                    int x = 5 + i * 18;
                     ItemStack item = player.getEquippedStack(ARMOR[i]);
                     if (!item.isEmpty()) {
                         context.drawItem(item, x, 2);
+                        context.fill(x + 5, 18, x + 11, 19, accent);
                         context.drawStackOverlay(client.textRenderer, item, x, 2);
                     }
                 }
@@ -161,7 +163,7 @@ final class VeyloHud {
             case COORDINATES -> 82;
             case PING, EFFECTS -> 112;
             case KEYS -> 58;
-            case ARMOR -> 79;
+            case ARMOR -> 80;
             case CPS, SPRINT, MEMORY -> 96;
             default -> 75;
         };
@@ -193,7 +195,7 @@ final class VeyloHud {
         String keyName = client.textRenderer.trimToWidth(binding.getBoundKeyLocalizedText().getString(), 14);
         int width = client.textRenderer.getWidth(VeyloTheme.styled(keyName));
         label(context, client, keyName, x + (18 - width) / 2, y + 5,
-                binding.isPressed() ? accent : VeyloTheme.TEXT);
+                binding.isPressed() ? VeyloTheme.TEXT : accent);
     }
 
     private static void label(DrawContext context, MinecraftClient client, String value, int x, int y, int color) {
