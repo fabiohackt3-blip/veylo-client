@@ -296,7 +296,7 @@ public partial class MainWindow : Window
         VersionPicker.SelectedItem = visible.First(item => item.Id == profile.VersionId);
         VeyloMode.IsEnabled = profile.VersionId == GameVersion.Default.Id;
         VeyloMode.IsChecked = profile.UseVeylo;
-        HomeVersion.Text = profile.VersionId + (profile.UseVeylo ? " · Veylo / Fabric" : " · Vanilla");
+        HomeVersion.Content = profile.VersionId + (profile.UseVeylo ? " · Veylo / Fabric" : " · Vanilla");
         syncing = wasSyncing;
     }
 

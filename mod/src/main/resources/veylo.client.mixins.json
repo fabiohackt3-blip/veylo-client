@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "de.veylo.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["MouseMixin"],
+  "injectors": {"defaultRequire": 1}
+}

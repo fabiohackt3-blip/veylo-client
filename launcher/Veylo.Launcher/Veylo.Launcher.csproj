@@ -8,9 +8,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>Veylo</AssemblyName>
     <RootNamespace>Veylo.Launcher</RootNamespace>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
+    <ApplicationIcon>Assets/Veylo.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Resource Include="Assets/Veylo.ico" />
     <PackageReference Include="CmlLib.Core" Version="4.1.0" />
     <PackageReference Include="CmlLib.Core.Auth.Microsoft" Version="3.3.1" />
     <PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />

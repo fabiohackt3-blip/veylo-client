@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
@@ -20,6 +21,7 @@ public final class VeyloClient implements ClientModInitializer {
     private static final Logger LOG = LoggerFactory.getLogger("Veylo");
     private final Path settingsPath = FabricLoader.getInstance().getConfigDir().resolve("veylo-hud.properties");
     private HudSettings settings = new HudSettings();
+    private int cosmeticTicks;
 
     @Override
     public void onInitializeClient() {
@@ -37,6 +39,20 @@ public final class VeyloClient implements ClientModInitializer {
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of("veylo", "hud"),
                 (context, ticks) -> VeyloHud.render(context, settings));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            ServerLatency.tick(client, settings.visible && settings.widgets.get(HudSettings.Module.PING).enabled);
+            VeyloHud.tick(client);
+            if (client.world != null && client.player != null && client.currentScreen == null &&
+                    settings.cosmetic != HudSettings.Cosmetic.OFF && ++cosmeticTicks % 5 == 0) {
+                var particle = switch (settings.cosmetic) {
+                    case FROST -> ParticleTypes.END_ROD;
+                    case SOUL -> ParticleTypes.SOUL_FIRE_FLAME;
+                    case LEAF -> ParticleTypes.HAPPY_VILLAGER;
+                    case OFF -> throw new IllegalStateException();
+                };
+                double angle = cosmeticTicks * .18;
+                client.world.addParticleClient(particle, client.player.getX() + Math.cos(angle) * .52,
+                        client.player.getY() + .15, client.player.getZ() + Math.sin(angle) * .52, 0, .025, 0);
+            }
             while (menu.wasPressed()) {
                 if (client.player != null && client.currentScreen == null) {
                     client.setScreen(new VeyloScreen(settings, this::save));

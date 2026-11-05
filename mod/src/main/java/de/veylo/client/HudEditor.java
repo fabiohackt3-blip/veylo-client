@@ -26,7 +26,7 @@ final class HudEditor extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         context.fill(0, 0, width, height, 0x58080e14);
         settings.widgets.forEach((module, widget) -> {
-            if (widget.enabled) VeyloHud.draw(context, module, widget, true);
+            if (widget.enabled) VeyloHud.draw(context, module, widget, true, settings.opacity);
         });
         context.drawCenteredTextWithShadow(textRenderer, "HUD ziehen  /  Esc zum Speichern", width / 2,
                 height - 14, 0xffe4f2fa);
