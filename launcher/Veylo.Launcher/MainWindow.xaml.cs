@@ -1,1 +1,189 @@
-dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLk9iamVjdE1vZGVsOwp1c2luZyBTeXN0ZW0uRGlhZ25vc3RpY3M7CnVzaW5nIFN5c3RlbS5JTzsKdXNpbmcgU3lzdGVtLldpbmRvd3M7CnVzaW5nIFN5c3RlbS5XaW5kb3dzLkNvbnRyb2xzOwp1c2luZyBDbWxMaWIuQ29yZS5BdXRoOwp1c2luZyBDbWxMaWIuQ29yZS5BdXRoLk1pY3Jvc29mdDsKdXNpbmcgQ21sTGliLkNvcmUuQXV0aC5NaWNyb3NvZnQuU2Vzc2lvbnM7CnVzaW5nIFhib3hBdXRoTmV0LkdhbWUuQWNjb3VudHM7CgpuYW1lc3BhY2UgVmV5bG8uTGF1bmNoZXI7CgpwdWJsaWMgcGFydGlhbCBjbGFzcyBNYWluV2luZG93IDogV2luZG93CnsKICAgIHByaXZhdGUgcmVhZG9ubHkgT2JzZXJ2YWJsZUNvbGxlY3Rpb248UHJvZmlsZT4gcHJvZmlsZXMgPSBbXTsKICAgIHByaXZhdGUgcmVhZG9ubHkgRGljdGlvbmFyeTxHdWlkLCBQcm9jZXNzPiBydW5uaW5nID0gW107CiAgICBwcml2YXRlIHJlYWRvbmx5IFByb2ZpbGVTdG9yZSBzdG9yZTsKICAgIHByaXZhdGUgcmVhZG9ubHkgR2FtZUluc3RhbGxlciBpbnN0YWxsZXI7CiAgICBwcml2YXRlIHJlYWRvbmx5IEpFTG9naW5IYW5kbGVyIGxvZ2luOwogICAgcHJpdmF0ZSBib29sIHJlYWR5OwogICAgcHJpdmF0ZSBib29sIGJ1c3k7CiAgICBwcml2YXRlIGJvb2wgc3luY2luZzsKICAgIHByaXZhdGUgTVNlc3Npb24/IHNlc3Npb247CgogICAgcHVibGljIE1haW5XaW5kb3coKQogICAgewogICAgICAgIHZhciByb290ID0gUGF0aC5Db21iaW5lKEVudmlyb25tZW50LkdldEZvbGRlclBhdGgoRW52aXJvbm1lbnQuU3BlY2lhbEZvbGRlci5Mb2NhbEFwcGxpY2F0aW9uRGF0YSksICJWZXlsbyIpOwogICAgICAgIHN0b3JlID0gbmV3IFByb2ZpbGVTdG9yZShyb290KTsKICAgICAgICBpbnN0YWxsZXIgPSBuZXcgR2FtZUluc3RhbGxlcihyb290KTsKICAgICAgICBsb2dpbiA9IG5ldyBKRUxvZ2luSGFuZGxlckJ1aWxkZXIoKQogICAgICAgICAgICAuV2l0aEFjY291bnRNYW5hZ2VyKG5ldyBJbk1lbW9yeVhib3hHYW1lQWNjb3VudE1hbmFnZXIoSkVHYW1lQWNjb3VudC5Gcm9tU2Vzc2lvblN0b3JhZ2UpKQogICAgICAgICAgICAuQnVpbGQoKTsKICAgICAgICBJbml0aWFsaXplQ29tcG9uZW50KCk7CiAgICAgICAgUHJvZmlsZVBpY2tlci5JdGVtc1NvdXJjZSA9IHByb2ZpbGVzOwogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIHByb2ZpbGUgaW4gc3RvcmUuTG9hZCgpKSBwcm9maWxlcy5BZGQocHJvZmlsZSk7CiAgICAgICAgICAgIHN0b3JlLlNhdmUocHJvZmlsZXMpOwogICAgICAgICAgICByZWFkeSA9IHRydWU7CiAgICAgICAgICAgIFByb2ZpbGVQaWNrZXIuU2VsZWN0ZWRJbmRleCA9IDA7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXJyb3IpIHdoZW4gKGVycm9yIGlzIElPRXhjZXB0aW9uIG9yIFVuYXV0aG9yaXplZEFjY2Vzc0V4Y2VwdGlvbiBvciBJbnZhbGlkRGF0YUV4Y2VwdGlvbiBvciBTeXN0ZW0uVGV4dC5Kc29uLkpzb25FeGNlcHRpb24pCiAgICAgICAgewogICAgICAgICAgICBTdGF0dXMuVGV4dCA9ICJQcm9maWxlIGtvbm50ZW4gbmljaHQgZ2VsYWRlbiB3ZXJkZW4uIFByw7xmZSBwcm9maWxlcy5qc29uIGltIFZleWxvLU9yZG5lci4iOwogICAgICAgIH0KICAgICAgICBSZWZyZXNoQWN0aW9ucygpOwogICAgfQoKICAgIHByaXZhdGUgYXN5bmMgdm9pZCBTaWduSW4ob2JqZWN0IHNlbmRlciwgUm91dGVkRXZlbnRBcmdzIGUpCiAgICB7CiAgICAgICAgYnVzeSA9IHRydWU7CiAgICAgICAgUmVmcmVzaEFjdGlvbnMoKTsKICAgICAgICBTdGF0dXMuVGV4dCA9ICJNaWNyb3NvZnQtQW5tZWxkdW5nIHdpcmQgZ2XDtmZmbmV0IOKApiI7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBzZXNzaW9uID0gYXdhaXQgbG9naW4uQXV0aGVudGljYXRlSW50ZXJhY3RpdmVseSgpOwogICAgICAgICAgICBBY2NvdW50LlRleHQgPSBzZXNzaW9uLlVzZXJuYW1lOwogICAgICAgICAgICBTdGF0dXMuVGV4dCA9ICJBbmdlbWVsZGV0LiI7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChPcGVyYXRpb25DYW5jZWxlZEV4Y2VwdGlvbikKICAgICAgICB7CiAgICAgICAgICAgIFN0YXR1cy5UZXh0ID0gIkFubWVsZHVuZyBhYmdlYnJvY2hlbi4iOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uKQogICAgICAgIHsKICAgICAgICAgICAgU3RhdHVzLlRleHQgPSAiQW5tZWxkdW5nIGZlaGxnZXNjaGxhZ2VuLiBQcsO8ZmUgZGVpbiBNaWNyb3NvZnQtS29udG8sIE1pbmVjcmFmdCBKYXZhIHVuZCBXZWJWaWV3Mi4iOwogICAgICAgIH0KICAgICAgICBmaW5hbGx5CiAgICAgICAgewogICAgICAgICAgICBidXN5ID0gZmFsc2U7CiAgICAgICAgICAgIFJlZnJlc2hBY3Rpb25zKCk7CiAgICAgICAgfQogICAgfQoKICAgIHByaXZhdGUgYXN5bmMgdm9pZCBQbGF5KG9iamVjdCBzZW5kZXIsIFJvdXRlZEV2ZW50QXJncyBlKQogICAgewogICAgICAgIGlmIChidXN5IHx8IHNlc3Npb24gaXMgbnVsbCB8fCBQcm9maWxlUGlja2VyLlNlbGVjdGVkSXRlbSBpcyBub3QgUHJvZmlsZSBwcm9maWxlIHx8IElzUnVubmluZyhwcm9maWxlKSkgcmV0dXJuOwogICAgICAgIGJ1c3kgPSB0cnVlOwogICAgICAgIFJlZnJlc2hBY3Rpb25zKCk7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgcHJvZ3Jlc3MgPSBuZXcgUHJvZ3Jlc3M8c3RyaW5nPihtZXNzYWdlID0+IFN0YXR1cy5UZXh0ID0gbWVzc2FnZSk7CiAgICAgICAgICAgIHZhciBwcm9jZXNzID0gYXdhaXQgaW5zdGFsbGVyLlN0YXJ0KHByb2ZpbGUsIHNlc3Npb24sIHByb2dyZXNzKTsKICAgICAgICAgICAgcnVubmluZ1twcm9maWxlLklkXSA9IHByb2Nlc3M7CiAgICAgICAgICAgIFN0YXR1cy5UZXh0ID0gIk1pbmVjcmFmdCBsw6R1ZnQuIFJlY2h0ZSBTaGlmdCDDtmZmbmV0IFZleWxvLiI7CiAgICAgICAgICAgIF8gPSBPYnNlcnZlR2FtZShwcm9maWxlLklkLCBwcm9jZXNzKTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEludmFsaWREYXRhRXhjZXB0aW9uIGVycm9yKQogICAgICAgIHsKICAgICAgICAgICAgU3RhdHVzLlRleHQgPSBlcnJvci5NZXNzYWdlOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGVycm9yKQogICAgICAgIHsKICAgICAgICAgICAgU3RhdHVzLlRleHQgPSAkIlN0YXJ0IGZlaGxnZXNjaGxhZ2VuICh7ZXJyb3IuR2V0VHlwZSgpLk5hbWV9KS4gUHLDvGZlIEludGVybmV0IHVuZCB2ZXJmw7xnYmFyZW4gU3BlaWNoZXIuIjsKICAgICAgICB9CiAgICAgICAgZmluYWxseQogICAgICAgIHsKICAgICAgICAgICAgYnVzeSA9IGZhbHNlOwogICAgICAgICAgICBSZWZyZXNoQWN0aW9ucygpOwogICAgICAgIH0KICAgIH0KCiAgICBwcml2YXRlIGFzeW5jIFRhc2sgT2JzZXJ2ZUdhbWUoR3VpZCBwcm9maWxlSWQsIFByb2Nlc3MgcHJvY2VzcykKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIGF3YWl0IHByb2Nlc3MuV2FpdEZvckV4aXRBc3luYygpOwogICAgICAgICAgICBTdGF0dXMuVGV4dCA9IHByb2Nlc3MuRXhpdENvZGUgPT0gMCA/ICJNaW5lY3JhZnQgd3VyZGUgZ2VzY2hsb3NzZW4uIiA6CiAgICAgICAgICAgICAgICAiTWluZWNyYWZ0IHd1cmRlIG1pdCBlaW5lbSBGZWhsZXIgYmVlbmRldC4gUHLDvGZlIGxvZ3MvbGF0ZXN0LmxvZyBpbSBQcm9maWxvcmRuZXIuIjsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24pCiAgICAgICAgewogICAgICAgICAgICBTdGF0dXMuVGV4dCA9ICJEZXIgTWluZWNyYWZ0LVByb3plc3MgaXN0IG5pY2h0IG1laHIgdmVyZsO8Z2Jhci4iOwogICAgICAgIH0KICAgICAgICBmaW5hbGx5CiAgICAgICAgewogICAgICAgICAgICBydW5uaW5nLlJlbW92ZShwcm9maWxlSWQpOwogICAgICAgICAgICBwcm9jZXNzLkRpc3Bvc2UoKTsKICAgICAgICAgICAgUmVmcmVzaEFjdGlvbnMoKTsKICAgICAgICB9CiAgICB9CgogICAgcHJpdmF0ZSB2b2lkIEFkZFByb2ZpbGUob2JqZWN0IHNlbmRlciwgUm91dGVkRXZlbnRBcmdzIGUpCiAgICB7CiAgICAgICAgdmFyIG5hbWUgPSBQcm9maWxlTmFtZS5UZXh0LlRyaW0oKTsKICAgICAgICBpZiAobmFtZS5MZW5ndGggPT0gMCB8fCBwcm9maWxlcy5BbnkocHJvZmlsZSA9PiBwcm9maWxlLk5hbWUuRXF1YWxzKG5hbWUsIFN0cmluZ0NvbXBhcmlzb24uT3JkaW5hbElnbm9yZUNhc2UpKSkKICAgICAgICB7CiAgICAgICAgICAgIFN0YXR1cy5UZXh0ID0gIkdpYiBlaW5lbiBuZXVlbiBQcm9maWxuYW1lbiBlaW4uIjsKICAgICAgICAgICAgcmV0dXJuOwogICAgICAgIH0KCiAgICAgICAgdmFyIHByb2ZpbGUgPSBuZXcgUHJvZmlsZShHdWlkLk5ld0d1aWQoKSwgbmFtZSk7CiAgICAgICAgaWYgKCFTYXZlKHByb2ZpbGVzLkFwcGVuZChwcm9maWxlKSkpIHJldHVybjsKICAgICAgICBwcm9maWxlcy5BZGQocHJvZmlsZSk7CiAgICAgICAgUHJvZmlsZVBpY2tlci5TZWxlY3RlZEl0ZW0gPSBwcm9maWxlOwogICAgICAgIFByb2ZpbGVOYW1lLkNsZWFyKCk7CiAgICAgICAgU3RhdHVzLlRleHQgPSAiUHJvZmlsIGVyc3RlbGx0LiI7CiAgICB9CgogICAgcHJpdmF0ZSB2b2lkIFByb2ZpbGVDaGFuZ2VkKG9iamVjdCBzZW5kZXIsIFNlbGVjdGlvbkNoYW5nZWRFdmVudEFyZ3MgZSkKICAgIHsKICAgICAgICBpZiAoIXJlYWR5IHx8IFByb2ZpbGVQaWNrZXIuU2VsZWN0ZWRJdGVtIGlzIG5vdCBQcm9maWxlIHByb2ZpbGUpIHJldHVybjsKICAgICAgICBzeW5jaW5nID0gdHJ1ZTsKICAgICAgICBSYW0uVmFsdWUgPSBwcm9maWxlLlJhbU1iOwogICAgICAgIFJhbUxhYmVsLlRleHQgPSAkIkFyYmVpdHNzcGVpY2hlciAgwrcgIHtwcm9maWxlLlJhbU1iIC8gMTAyNGQ6MC4jfSBHQiI7CiAgICAgICAgc3luY2luZyA9IGZhbHNlOwogICAgICAgIFJlZnJlc2hBY3Rpb25zKCk7CiAgICB9CgogICAgcHJpdmF0ZSB2b2lkIFJhbUNoYW5nZWQob2JqZWN0IHNlbmRlciwgUm91dGVkUHJvcGVydHlDaGFuZ2VkRXZlbnRBcmdzPGRvdWJsZT4gZSkKICAgIHsKICAgICAgICBpZiAoIXJlYWR5IHx8IHN5bmNpbmcgfHwgUHJvZmlsZVBpY2tlci5TZWxlY3RlZEl0ZW0gaXMgbm90IFByb2ZpbGUgcHJvZmlsZSkgcmV0dXJuOwogICAgICAgIHZhciBwcmV2aW91cyA9IHByb2ZpbGUuUmFtTWI7CiAgICAgICAgcHJvZmlsZS5SYW1NYiA9IChpbnQpZS5OZXdWYWx1ZTsKICAgICAgICBpZiAoIVNhdmUocHJvZmlsZXMpKQogICAgICAgIHsKICAgICAgICAgICAgcHJvZmlsZS5SYW1NYiA9IHByZXZpb3VzOwogICAgICAgICAgICBzeW5jaW5nID0gdHJ1ZTsKICAgICAgICAgICAgUmFtLlZhbHVlID0gcHJldmlvdXM7CiAgICAgICAgICAgIHN5bmNpbmcgPSBmYWxzZTsKICAgICAgICB9CiAgICAgICAgUmFtTGFiZWwuVGV4dCA9ICQiQXJiZWl0c3NwZWljaGVyICDCtyAge3Byb2ZpbGUuUmFtTWIgLyAxMDI0ZDowLiN9IEdCIjsKICAgIH0KCiAgICBwcml2YXRlIGJvb2wgU2F2ZShJRW51bWVyYWJsZTxQcm9maWxlPiBpdGVtcykKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHN0b3JlLlNhdmUoaXRlbXMpOwogICAgICAgICAgICByZXR1cm4gdHJ1ZTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBlcnJvcikgd2hlbiAoZXJyb3IgaXMgSU9FeGNlcHRpb24gb3IgVW5hdXRob3JpemVkQWNjZXNzRXhjZXB0aW9uKQogICAgICAgIHsKICAgICAgICAgICAgU3RhdHVzLlRleHQgPSAiUHJvZmlsZSBrb25udGVuIG5pY2h0IGdlc3BlaWNoZXJ0IHdlcmRlbi4iOwogICAgICAgICAgICByZXR1cm4gZmFsc2U7CiAgICAgICAgfQogICAgfQoKICAgIHByaXZhdGUgYm9vbCBJc1J1bm5pbmcoUHJvZmlsZSBwcm9maWxlKSA9PgogICAgICAgIHJ1bm5pbmcuVHJ5R2V0VmFsdWUocHJvZmlsZS5JZCwgb3V0IHZhciBwcm9jZXNzKSAmJiAhcHJvY2Vzcy5IYXNFeGl0ZWQ7CgogICAgcHJpdmF0ZSB2b2lkIFJlZnJlc2hBY3Rpb25zKCkKICAgIHsKICAgICAgICBQcm9maWxlUGFuZWwuSXNFbmFibGVkID0gcmVhZHkgJiYgIWJ1c3k7CiAgICAgICAgU2lnbkluQnV0dG9uLklzRW5hYmxlZCA9IHJlYWR5ICYmICFidXN5OwogICAgICAgIFBsYXlCdXR0b24uSXNFbmFibGVkID0gcmVhZHkgJiYgIWJ1c3kgJiYgc2Vzc2lvbiBpcyBub3QgbnVsbCAmJgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgUHJvZmlsZVBpY2tlci5TZWxlY3RlZEl0ZW0gaXMgUHJvZmlsZSBwcm9maWxlICYmICFJc1J1bm5pbmcocHJvZmlsZSk7CiAgICB9Cn0K
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using CmlLib.Core.Auth;
+using CmlLib.Core.Auth.Microsoft;
+using CmlLib.Core.Auth.Microsoft.Sessions;
+using XboxAuthNet.Game.Accounts;
+
+namespace Veylo.Launcher;
+
+public partial class MainWindow : Window
+{
+    private readonly ObservableCollection<Profile> profiles = [];
+    private readonly Dictionary<Guid, Process> running = [];
+    private readonly ProfileStore store;
+    private readonly GameInstaller installer;
+    private readonly JELoginHandler login;
+    private bool ready;
+    private bool busy;
+    private bool syncing;
+    private MSession? session;
+
+    public MainWindow()
+    {
+        var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Veylo");
+        store = new ProfileStore(root);
+        installer = new GameInstaller(root);
+        login = new JELoginHandlerBuilder()
+            .WithAccountManager(new InMemoryXboxGameAccountManager(JEGameAccount.FromSessionStorage))
+            .Build();
+        InitializeComponent();
+        ProfilePicker.ItemsSource = profiles;
+        try
+        {
+            foreach (var profile in store.Load()) profiles.Add(profile);
+            store.Save(profiles);
+            ready = true;
+            ProfilePicker.SelectedIndex = 0;
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException)
+        {
+            Status.Text = "Profile konnten nicht geladen werden. Prüfe profiles.json im Veylo-Ordner.";
+        }
+        RefreshActions();
+    }
+
+    private async void SignIn(object sender, RoutedEventArgs e)
+    {
+        busy = true;
+        RefreshActions();
+        Status.Text = "Microsoft-Anmeldung wird geöffnet …";
+        try
+        {
+            session = await login.AuthenticateInteractively();
+            Account.Text = session.Username;
+            Status.Text = "Angemeldet.";
+        }
+        catch (OperationCanceledException)
+        {
+            Status.Text = "Anmeldung abgebrochen.";
+        }
+        catch (Exception)
+        {
+            Status.Text = "Anmeldung fehlgeschlagen. Prüfe dein Microsoft-Konto, Minecraft Java und WebView2.";
+        }
+        finally
+        {
+            busy = false;
+            RefreshActions();
+        }
+    }
+
+    private async void Play(object sender, RoutedEventArgs e)
+    {
+        if (busy || session is null || ProfilePicker.SelectedItem is not Profile profile || IsRunning(profile)) return;
+        busy = true;
+        RefreshActions();
+        try
+        {
+            var progress = new Progress<string>(message => Status.Text = message);
+            var process = await installer.Start(profile, session, progress);
+            running[profile.Id] = process;
+            Status.Text = "Minecraft läuft. Rechte Shift öffnet Veylo.";
+            _ = ObserveGame(profile.Id, process);
+        }
+        catch (InvalidDataException error)
+        {
+            Status.Text = error.Message;
+        }
+        catch (Exception error)
+        {
+            Status.Text = $"Start fehlgeschlagen ({error.GetType().Name}). Prüfe Internet und verfügbaren Speicher.";
+        }
+        finally
+        {
+            busy = false;
+            RefreshActions();
+        }
+    }
+
+    private async Task ObserveGame(Guid profileId, Process process)
+    {
+        try
+        {
+            await process.WaitForExitAsync();
+            Status.Text = process.ExitCode == 0 ? "Minecraft wurde geschlossen." :
+                "Minecraft wurde mit einem Fehler beendet. Prüfe logs/latest.log im Profilordner.";
+        }
+        catch (InvalidOperationException)
+        {
+            Status.Text = "Der Minecraft-Prozess ist nicht mehr verfügbar.";
+        }
+        finally
+        {
+            running.Remove(profileId);
+            process.Dispose();
+            RefreshActions();
+        }
+    }
+
+    private void AddProfile(object sender, RoutedEventArgs e)
+    {
+        var name = ProfileName.Text.Trim();
+        if (name.Length == 0 || profiles.Any(profile => profile.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+        {
+            Status.Text = "Gib einen neuen Profilnamen ein.";
+            return;
+        }
+
+        var profile = new Profile(Guid.NewGuid(), name);
+        if (!Save(profiles.Append(profile))) return;
+        profiles.Add(profile);
+        ProfilePicker.SelectedItem = profile;
+        ProfileName.Clear();
+        Status.Text = "Profil erstellt.";
+    }
+
+    private void ProfileChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!ready || ProfilePicker.SelectedItem is not Profile profile) return;
+        syncing = true;
+        Ram.Value = profile.RamMb;
+        RamLabel.Text = $"Arbeitsspeicher  ·  {profile.RamMb / 1024d:0.#} GB";
+        syncing = false;
+        RefreshActions();
+    }
+
+    private void RamChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (!ready || syncing || ProfilePicker.SelectedItem is not Profile profile) return;
+        var previous = profile.RamMb;
+        profile.RamMb = (int)e.NewValue;
+        if (!Save(profiles))
+        {
+            profile.RamMb = previous;
+            syncing = true;
+            Ram.Value = previous;
+            syncing = false;
+        }
+        RamLabel.Text = $"Arbeitsspeicher  ·  {profile.RamMb / 1024d:0.#} GB";
+    }
+
+    private bool Save(IEnumerable<Profile> items)
+    {
+        try
+        {
+            store.Save(items);
+            return true;
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            Status.Text = "Profile konnten nicht gespeichert werden.";
+            return false;
+        }
+    }
+
+    private bool IsRunning(Profile profile) =>
+        running.TryGetValue(profile.Id, out var process) && !process.HasExited;
+
+    private void RefreshActions()
+    {
+        ProfilePanel.IsEnabled = ready && !busy;
+        SignInButton.IsEnabled = ready && !busy;
+        PlayButton.IsEnabled = ready && !busy && session is not null &&
+                               ProfilePicker.SelectedItem is Profile profile && !IsRunning(profile);
+    }
+}
