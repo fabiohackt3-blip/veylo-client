@@ -1,0 +1,52 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap' version '1.14.10'
+}
+
+group = 'de.veylo'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+}
+
+configurations {
+    launcherRuntime {
+        transitive = false
+    }
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.11'
+    mappings 'net.fabricmc:yarn:1.21.11+build.6:v2'
+    modImplementation 'net.fabricmc:fabric-loader:0.19.3'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.141.4+1.21.11'
+    launcherRuntime 'net.fabricmc.fabric-api:fabric-api:0.141.4+1.21.11'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand version: project.version
+    }
+}
+
+tasks.register('stageLauncherMods', Sync) {
+    dependsOn tasks.named('remapJar')
+    into layout.buildDirectory.dir('launcher-mods')
+    from(tasks.named('remapJar').flatMap { it.archiveFile }) {
+        rename { 'veylo-client.jar' }
+    }
+    from(configurations.launcherRuntime) {
+        rename { 'fabric-api.jar' }
+    }
+}

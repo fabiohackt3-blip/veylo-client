@@ -1,0 +1,55 @@
+name: Build Veylo for Windows
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build and stage the Fabric client
+        run: |
+          & ./mod/gradlew.bat -p mod --no-daemon stageLauncherMods
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Publish the Windows launcher with its runtime
+        run: |
+          dotnet publish launcher/Veylo.Launcher/Veylo.Launcher.csproj -c Release -r win-x64 --self-contained true -o dist/Veylo
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify the Windows payload
+        run: |
+          $base = 'dist/Veylo'
+          foreach ($name in @('Veylo.exe', 'hostfxr.dll', 'coreclr.dll', 'mods/veylo-client.jar', 'mods/fabric-api.jar')) {
+            $file = Join-Path $base $name
+            if (!(Test-Path $file -PathType Leaf) -or (Get-Item $file).Length -eq 0) {
+              throw "Missing payload: $name"
+            }
+          }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $mod = [IO.Compression.ZipFile]::OpenRead((Resolve-Path "$base/mods/veylo-client.jar").Path)
+          try {
+            if (!$mod.GetEntry('fabric.mod.json') -or !$mod.GetEntry('de/veylo/client/VeyloClient.class')) {
+              throw 'The Veylo mod is incomplete.'
+            }
+          } finally {
+            $mod.Dispose()
+          }
+          @("Veylo Client 0.1.0", "", "Entpacke die komplette ZIP und starte Veylo.exe.", "Beim ersten Spielstart laedt Veylo die Minecraft-Dateien herunter.", "Im Spiel oeffnet rechte Shift das Veylo-Menue.") | Set-Content "$base/START.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Veylo-Client-Windows-x64
+          path: dist/Veylo/
+          if-no-files-found: error

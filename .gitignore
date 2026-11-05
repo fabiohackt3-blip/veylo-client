@@ -1,0 +1,6 @@
+.gradle/
+**/build/
+**/bin/
+**/obj/
+/dist/
+/mod/run/

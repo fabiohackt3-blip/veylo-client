@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "veylo",
+  "version": "${version}",
+  "name": "Veylo Client",
+  "description": "Einstellbares Veylo-HUD und Menü.",
+  "environment": "client",
+  "entrypoints": { "client": ["de.veylo.client.VeyloClient"] },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "fabric-api": ">=0.141.4",
+    "minecraft": "1.21.11",
+    "java": ">=21"
+  }
+}
