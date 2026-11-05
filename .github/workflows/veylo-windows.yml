@@ -47,7 +47,7 @@ jobs:
           } finally {
             $mod.Dispose()
           }
-          @("Veylo Client 0.3.0", "", "Entpacke die komplette ZIP und starte Veylo.exe.", "Beim ersten Spielstart laedt Veylo die Minecraft-Dateien herunter.", "Im Spiel oeffnet rechte Shift das Veylo-Menue.") | Set-Content "$base/START.txt"
+          @("Veylo Client 0.4.0", "", "Entpacke die komplette ZIP und starte Veylo.exe.", "Beim ersten Spielstart laedt Veylo die Minecraft-Dateien herunter.", "Im Spiel oeffnet rechte Shift das Veylo-Menue.") | Set-Content "$base/START.txt"
       - uses: actions/upload-artifact@v4
         with:
           name: Veylo-Client-Windows-x64

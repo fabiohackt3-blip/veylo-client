@@ -76,7 +76,7 @@
                     <Image Source="Assets/Veylo.ico" Width="32" Height="32" RenderOptions.BitmapScalingMode="HighQuality"/>
                     <TextBlock Text="VEYLO" FontSize="22" FontWeight="Bold" Margin="8,0,0,0"/>
                 </StackPanel>
-                <TextBlock DockPanel.Dock="Bottom" Text="VEYLO · 0.3.0" Foreground="{StaticResource Muted}" Margin="7,12"/>
+                <TextBlock DockPanel.Dock="Bottom" Text="VEYLO · 0.4.0" Foreground="{StaticResource Muted}" Margin="7,12"/>
                 <StackPanel x:Name="Navigation">
                     <Button Style="{StaticResource Navigation}" Content="Home" Tag="Home" Click="Navigate"/>
                     <Button Style="{StaticResource Navigation}" Content="Versionen" Tag="Versions" Click="Navigate"/>
@@ -132,7 +132,7 @@
                         </Border>
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
-                                <TextBlock Text="Veylo 0.3.0" Style="{StaticResource Title}"/>
+                                <TextBlock Text="Veylo 0.4.0" Style="{StaticResource Title}"/>
                                 <TextBlock Text="Neues Right-Shift-Menü, überarbeitetes HUD und lokale Cosmetics."
                                            Foreground="{StaticResource Muted}" TextWrapping="Wrap"/>
                                 <WrapPanel Margin="0,16,0,0">

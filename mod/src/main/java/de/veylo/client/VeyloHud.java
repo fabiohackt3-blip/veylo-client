@@ -46,7 +46,7 @@ final class VeyloHud {
         MinecraftClient client = MinecraftClient.getInstance();
         if (!settings.visible || client.player == null || client.currentScreen instanceof HudEditor) return;
         settings.widgets.forEach((module, widget) -> {
-            if (widget.enabled) draw(context, module, widget, false, settings.opacity);
+            if (widget.enabled) draw(context, module, widget);
         });
     }
 
@@ -57,114 +57,143 @@ final class VeyloHud {
                 (float) screenWidth / baseWidth, (float) screenHeight / baseHeight));
         int width = (int) Math.ceil(baseWidth * scale);
         int height = (int) Math.ceil(baseHeight * scale);
-        int x = Math.max(0, Math.min(screenWidth - width, widget.x));
-        int y = Math.max(0, Math.min(screenHeight - height, widget.y));
+        int x = HudGeometry.position(widget.x, width, screenWidth, widget.right);
+        int y = HudGeometry.position(widget.y, height, screenHeight, widget.bottom);
         return new Bounds(x, y, width, height, scale);
     }
 
-    static void draw(DrawContext context, HudSettings.Module module, HudSettings.Widget widget, boolean editor, int opacity) {
+    static void draw(DrawContext context, HudSettings.Module module, HudSettings.Widget widget) {
         MinecraftClient client = MinecraftClient.getInstance();
         var player = client.player;
         if (player == null) return;
         Bounds box = bounds(context.getScaledWindowWidth(), context.getScaledWindowHeight(), module, widget);
         int width = baseWidth(module);
         int height = baseHeight(module);
-        int alpha = opacity * 255 / 100;
+        int alpha = widget.opacity * 255 / 100;
+        int accent = 0xff000000 | widget.accent;
         var matrix = context.getMatrices();
         matrix.pushMatrix();
         matrix.translate(box.x, box.y);
         matrix.scale(box.scale, box.scale);
-        VeyloTheme.card(context, 0, 0, width, height, alpha << 24 | 0x101a23,
-                editor ? VeyloTheme.ACCENT : alpha << 24 | 0x304658);
-        label(context, client, module.label.toUpperCase(Locale.ROOT), 7, 5, VeyloTheme.ACCENT);
+        if (alpha != 0 && module != HudSettings.Module.KEYS) {
+            VeyloTheme.rounded(context, 0, 0, width, height, alpha << 24 | 0x101820);
+        }
+        int labelWidth = switch (module) {
+            case CPS -> 23;
+            case DIRECTION -> 25;
+            case ATTACK, EFFECTS, COORDINATES, KEYS, ARMOR -> 0;
+            default -> client.textRenderer.getWidth(VeyloTheme.styled(module.label)) + 4;
+        };
+        if (labelWidth != 0) {
+            String title = switch (module) {
+                case CPS -> "CPS";
+                case DIRECTION -> "Kurs";
+                default -> module.label;
+            };
+            label(context, client, title, 5, 4, accent);
+        }
+        if (labelWidth != 0) context.enableScissor(5 + labelWidth, 0, width - 4, height);
         switch (module) {
-            case FPS -> value(context, client, Integer.toString(client.getCurrentFps()));
-            case PING -> value(context, client, ServerLatency.display(client));
-            case CLOCK -> value(context, client, clock);
-            case SESSION -> value(context, client, playtime);
-            case CPS -> value(context, client, "L " + ClickCounter.count(0) + "  ·  R " + ClickCounter.count(1));
-            case SPRINT -> value(context, client, player.isSprinting() ? "Sprintet" : "Normal");
-            case DIRECTION -> value(context, client, player.getHorizontalFacing().asString().toUpperCase(Locale.ROOT));
-            case SPEED -> value(context, client, Math.round(player.getVelocity().horizontalLength() * 200) / 10.0 + " m/s");
-            case MEMORY -> value(context, client, (RUNTIME.totalMemory() - RUNTIME.freeMemory()) / (1024 * 1024) + " MB");
+            case FPS -> value(context, client, width, Integer.toString(client.getCurrentFps()));
+            case PING -> value(context, client, width, ServerLatency.display(client));
+            case CLOCK -> value(context, client, width, clock);
+            case SESSION -> value(context, client, width, playtime);
+            case CPS -> value(context, client, width, "L " + ClickCounter.count(0) + "  ·  R " + ClickCounter.count(1));
+            case SPRINT -> value(context, client, width, player.isSprinting() ? "Sprintet" : "Normal");
+            case DIRECTION -> value(context, client, width, player.getHorizontalFacing().asString().toUpperCase(Locale.ROOT));
+            case SPEED -> value(context, client, width, Math.round(player.getVelocity().horizontalLength() * 200) / 10.0 + " m/s");
+            case MEMORY -> value(context, client, width, (RUNTIME.totalMemory() - RUNTIME.freeMemory()) / (1024 * 1024) + " MB");
             case COORDINATES -> {
                 var pos = player.getBlockPos();
-                value(context, client, "X " + pos.getX() + "  Y " + pos.getY() + "  Z " + pos.getZ());
+                coordinate(context, client, "X", pos.getX(), 4, accent);
+                coordinate(context, client, "Y", pos.getY(), 15, accent);
+                coordinate(context, client, "Z", pos.getZ(), 26, accent);
             }
             case BIOME -> {
                 String name = client.world == null ? "–" : client.world.getBiome(player.getBlockPos()).getKey()
                         .map(key -> key.getValue().getPath().replace('_', ' ')).orElse("–");
-                value(context, client, client.textRenderer.trimToWidth(name, width - 14));
+                value(context, client, width, client.textRenderer.trimToWidth(name, width - 14));
             }
             case ATTACK -> {
                 int power = Math.round(player.getAttackCooldownProgress(0.0f) * 100);
-                value(context, client, power + " %");
-                int track = width - 14;
-                context.fill(7, 25, 7 + track, 27, VeyloTheme.BORDER);
-                context.fill(7, 25, 7 + power * track / 100, 27, VeyloTheme.ACCENT);
+                label(context, client, "Angriff", 5, 4, accent);
+                value(context, client, width, power + " %");
+                context.fill(5, 15, width - 5, 16, VeyloTheme.BORDER);
+                context.fill(5, 15, 5 + power * (width - 10) / 100, 16, accent);
             }
             case EFFECTS -> {
-                int y = 17;
+                int y = 4;
                 for (var effect : player.getStatusEffects()) {
-                    if (y > 37) break;
+                    if (y > 24) break;
                     String name = effect.getEffectType().value().getName().getString();
                     String duration = effect.isInfinite() ? "" : "  " + effect.getDuration() / 20 + "s";
                     label(context, client, client.textRenderer.trimToWidth(name + duration, width - 14),
-                            7, y, VeyloTheme.TEXT);
+                            5, y, VeyloTheme.TEXT);
                     y += 10;
                 }
-                if (y == 17) value(context, client, "Keine Effekte");
+                if (y == 4) label(context, client, "Keine Effekte", 5, y, accent);
             }
             case KEYS -> {
                 var keys = client.options;
-                key(context, client, keys.forwardKey, 30, 16);
-                key(context, client, keys.leftKey, 7, 33);
-                key(context, client, keys.backKey, 30, 33);
-                key(context, client, keys.rightKey, 53, 33);
+                key(context, client, keys.forwardKey, 20, 0, alpha, accent);
+                key(context, client, keys.leftKey, 0, 19, alpha, accent);
+                key(context, client, keys.backKey, 20, 19, alpha, accent);
+                key(context, client, keys.rightKey, 40, 19, alpha, accent);
             }
             case ARMOR -> {
                 for (int i = 0; i < ARMOR.length; i++) {
-                    int x = 7 + i * 21;
+                    int x = 4 + i * 18;
                     ItemStack item = player.getEquippedStack(ARMOR[i]);
-                    VeyloTheme.rounded(context, x, 16, 17, 17, 0xff243746);
                     if (!item.isEmpty()) {
-                        context.drawItem(item, x, 16);
-                        context.drawStackOverlay(client.textRenderer, item, x, 16);
+                        context.drawItem(item, x, 2);
+                        context.drawStackOverlay(client.textRenderer, item, x, 2);
                     }
                 }
             }
         }
+        if (labelWidth != 0) context.disableScissor();
         matrix.popMatrix();
     }
 
     private static int baseWidth(HudSettings.Module module) {
         return switch (module) {
-            case COORDINATES -> 166;
-            case ATTACK, EFFECTS -> 136;
-            case CPS, BIOME -> 108;
-            case ARMOR -> 94;
-            default -> 88;
+            case BIOME -> 132;
+            case COORDINATES -> 82;
+            case PING, EFFECTS -> 112;
+            case KEYS -> 58;
+            case ARMOR -> 79;
+            case CPS, SPRINT, MEMORY -> 96;
+            default -> 75;
         };
     }
 
     private static int baseHeight(HudSettings.Module module) {
         return switch (module) {
-            case KEYS, EFFECTS -> 54;
-            case ARMOR -> 38;
-            case ATTACK -> 31;
-            default -> 28;
+            case KEYS, EFFECTS, COORDINATES -> 37;
+            case ARMOR, ATTACK -> 20;
+            default -> 16;
         };
     }
 
-    private static void value(DrawContext context, MinecraftClient client, String value) {
-        label(context, client, value, 7, 16, VeyloTheme.TEXT);
+    private static void value(DrawContext context, MinecraftClient client, int width, String value) {
+        int textWidth = client.textRenderer.getWidth(VeyloTheme.styled(value));
+        label(context, client, value, Math.max(5, width - 5 - textWidth), 4, VeyloTheme.TEXT);
     }
 
-    private static void key(DrawContext context, MinecraftClient client, KeyBinding binding, int x, int y) {
-        VeyloTheme.rounded(context, x, y, 21, 15, binding.isPressed() ? 0xff247ca5 : 0xff263b4b);
-        String label = client.textRenderer.trimToWidth(binding.getBoundKeyLocalizedText().getString(), 17);
-        int width = client.textRenderer.getWidth(VeyloTheme.styled(label));
-        label(context, client, label, x + (21 - width) / 2, y + 4, VeyloTheme.TEXT);
+    private static void coordinate(DrawContext context, MinecraftClient client, String axis, int value, int y, int accent) {
+        label(context, client, axis, 5, y, accent);
+        label(context, client, Integer.toString(value), 17, y, VeyloTheme.TEXT);
+    }
+
+    private static void key(DrawContext context, MinecraftClient client, KeyBinding binding,
+                            int x, int y, int alpha, int accent) {
+        if (alpha != 0) {
+            VeyloTheme.rounded(context, x, y, 18, 17, alpha << 24 | (binding.isPressed() ? 0x244452 : 0x101820));
+        }
+        String keyName = client.textRenderer.trimToWidth(binding.getBoundKeyLocalizedText().getString(), 14);
+        int width = client.textRenderer.getWidth(VeyloTheme.styled(keyName));
+        label(context, client, keyName, x + (18 - width) / 2, y + 5,
+                binding.isPressed() ? accent : VeyloTheme.TEXT);
     }
 
     private static void label(DrawContext context, MinecraftClient client, String value, int x, int y, int color) {

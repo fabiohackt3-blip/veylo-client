@@ -1,4 +1,4 @@
-# Veylo Client 0.3.0
+# Veylo Client 0.4.0
 
 Windows-Launcher und integrierter Fabric-Client für Minecraft Java.
 
@@ -12,7 +12,7 @@ In GitHub unter **Actions → Build Veylo for Windows** den erfolgreichen Lauf f
 - Offizieller Mojang-Versionskatalog mit optionalen Snapshots und lokal getrennten Vanilla-Instanzen. **Veylo mit Fabric und dem integrierten HUD unterstützt derzeit Minecraft 1.21.11.** Bestehende 1.21.11-Fabric-Profile behalten ihren bisherigen Ordner.
 - Der Launcher verwendet die erfolgreiche interaktive Microsoft-Sitzung, zeigt den Installationsfortschritt und erlaubt Abbruch und erneutes Starten. Die Sitzung bleibt während der Laufzeit im Speicher.
 - Lokaler JAR-Import für Fabric und Aktivieren/Deaktivieren je Profil. Der Import prüft das Fabric-Manifest. Die Kompatibilitäts- und Abhängigkeitsprüfung beim Spielstart übernimmt Fabric.
-- Rechte Shift öffnet Veylos eigenes Menü mit Suche, Schaltern, Kategorien sowie separaten HUD- und Cosmetics-Seiten. Der HUD-Editor unterstützt Position, Skalierung und eine gemeinsame Hintergrund-Deckkraft.
+- Rechte Shift öffnet Veylos eigenes Menü mit Suche, Schaltern, Kategorien sowie separaten HUD- und Cosmetics-Seiten. Alle Module haben eigene Einstellungen. Der HUD-Editor bietet Drag & Drop, Einrasten am Bildschirmrand, Skalierung, Hintergrund-Deckkraft, Akzentfarben und bis zu zwölf benannte Layouts.
 - HUD-Module umfassen FPS, Ping, Position, Rüstung, Tasten, Richtung, Tempo, Uhr, Speicher, Links-/Rechts-CPS, Effekte, Sprintstatus, Spielzeit, Angriffscooldown und Biom. Ping nutzt die Spielerübersicht oder als gekennzeichneten Ersatz eine Messung über die Serverliste.
 - Lokale Partikelspuren: Frostfunken, Seelenfeuer und Waldglanz. Sie sind nur im eigenen Client sichtbar und lassen sich ausschalten.
 - Die Windows-EXE und das Launcher-Fenster verwenden das Veylo-Appsymbol.
