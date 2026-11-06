@@ -24,6 +24,7 @@ public sealed record Profile(Guid Id, string Name)
     [JsonIgnore]
     public string Details => VersionId + " · " + ModeLabel;
     public int RamMb { get; set; } = 4096;
+    public DateTimeOffset? LastPlayedAt { get; set; }
 }
 
 internal sealed class ProfileStore(string directory)
@@ -52,6 +53,12 @@ internal sealed class ProfileStore(string directory)
         }
         return profiles;
     }
+
+    public static Profile[] RecentlyPlayed(IEnumerable<Profile> profiles) =>
+        profiles.Where(profile => profile.LastPlayedAt.HasValue)
+            .OrderByDescending(profile => profile.LastPlayedAt)
+            .Take(3)
+            .ToArray();
 
     public void Save(IEnumerable<Profile> profiles)
     {

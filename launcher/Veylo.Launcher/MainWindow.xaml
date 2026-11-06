@@ -76,15 +76,33 @@
                     <Image Source="Assets/Veylo.ico" Width="32" Height="32" RenderOptions.BitmapScalingMode="HighQuality"/>
                     <TextBlock Text="VEYLO" FontSize="22" FontWeight="Bold" Margin="8,0,0,0"/>
                 </StackPanel>
-                <TextBlock DockPanel.Dock="Bottom" Text="VEYLO · 0.5.0" Foreground="{StaticResource Muted}" Margin="7,12"/>
+                <TextBlock DockPanel.Dock="Bottom" Text="VEYLO · 0.5.1" Foreground="{StaticResource Muted}" Margin="7,12"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel x:Name="Navigation">
                     <Button Style="{StaticResource Navigation}" Content="Home" Tag="Home" Click="Navigate"/>
+                    <StackPanel x:Name="RecentSection" Visibility="Collapsed" Margin="8,0,0,8">
+                        <TextBlock Text="ZULETZT GESPIELT" Foreground="{StaticResource Muted}" FontSize="10" Margin="4,2,0,5"/>
+                        <ItemsControl x:Name="RecentInstances">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource Navigation}" CommandParameter="{Binding}" Click="OpenRecentInstance"
+                                            Padding="8,5" ToolTip="{Binding Name}" AutomationProperties.Name="{Binding Name}">
+                                        <StackPanel Width="103">
+                                            <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" FontSize="12"/>
+                                            <TextBlock Text="{Binding Details}" TextTrimming="CharacterEllipsis" Foreground="{StaticResource Muted}" FontSize="10"/>
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                     <Button Style="{StaticResource Navigation}" Content="Versionen" Tag="Versions" Click="Navigate"/>
                     <Button Style="{StaticResource Navigation}" Content="Mods" Tag="Mods" Click="Navigate"/>
                     <Button Style="{StaticResource Navigation}" Content="Instanzen" Tag="Profiles" Click="Navigate"/>
                     <Button Style="{StaticResource Navigation}" Content="Accounts" Tag="Accounts" Click="Navigate"/>
                     <Button Style="{StaticResource Navigation}" Content="Einstellungen" Tag="Settings" Click="Navigate"/>
                 </StackPanel>
+                </ScrollViewer>
             </DockPanel>
         </Border>
         <Grid Grid.Column="1" Margin="24,16,24,16">
@@ -93,7 +111,7 @@
                 <TextBlock DockPanel.Dock="Left" Text="MINECRAFT JAVA EDITION" Foreground="{StaticResource Muted}" VerticalAlignment="Center"/>
                 <Button DockPanel.Dock="Right" Content="Microsoft-Konto" Tag="Accounts" Click="Navigate"/>
             </DockPanel>
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer x:Name="PageScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <Grid>
                     <StackPanel x:Name="HomePage">
                         <Border Height="216" Background="#112A3D" CornerRadius="12" ClipToBounds="True">
@@ -132,7 +150,7 @@
                         </Border>
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
-                                <TextBlock Text="Veylo 0.5.0" Style="{StaticResource Title}"/>
+                                <TextBlock Text="Veylo 0.5.1" Style="{StaticResource Title}"/>
                                 <TextBlock Text="Neues Right-Shift-Menü, überarbeitetes HUD und lokale Cosmetics."
                                            Foreground="{StaticResource Muted}" TextWrapping="Wrap"/>
                                 <WrapPanel Margin="0,16,0,0">
@@ -214,27 +232,41 @@
                     <StackPanel x:Name="ProfilesPage" Visibility="Collapsed">
                         <TextBlock Text="Meine Instanzen" Style="{StaticResource Title}"/>
                         <TextBlock Text="Jede Instanz hat eigene Welten, Mods und Einstellungen." Foreground="{StaticResource Muted}" Margin="0,0,0,12"/>
-                        <ListBox x:Name="ManageProfiles" SelectionChanged="ManagedProfileChanged" Background="Transparent"
-                                 BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,12">
-                            <ListBox.ItemsPanel>
+                        <ItemsControl x:Name="ManageProfiles" Margin="0,0,0,12">
+                            <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                            <ListBox.ItemTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Width="164" Background="#131F29" BorderBrush="#365266" BorderThickness="1" CornerRadius="8">
+                                    <Button Click="OpenInstanceCard" CommandParameter="{Binding Profile}" Width="168"
+                                            Padding="1" Margin="0,0,8,8" HorizontalContentAlignment="Stretch"
+                                            AutomationProperties.Name="{Binding Profile.Name}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                <Setter Property="Background" Value="#131F29"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Active}" Value="True">
+                                                        <Setter Property="Background" Value="#21445D"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
                                         <StackPanel>
                                             <Image Source="{Binding Cover}" Height="88" Stretch="UniformToFill"/>
                                             <TextBlock Text="{Binding Profile.Name}" Margin="9,8,9,2" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Text="{Binding Profile.Details}" Margin="9,0,9,8" Foreground="#A3B6C7" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding Profile.Details}" Margin="9,0,9,2" Foreground="#A3B6C7" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="Instanz öffnen →" Margin="9,2,9,8" Foreground="{StaticResource Accent}" FontSize="11"/>
                                         </StackPanel>
-                                    </Border>
+                                    </Button>
                                 </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                         <Border Style="{StaticResource Card}">
                             <StackPanel x:Name="ProfilePanel">
                                 <TextBlock x:Name="SelectedInstance" Text="Aktive Instanz" FontWeight="SemiBold" FontSize="17"/>
                                 <WrapPanel Margin="0,8,0,0">
+                                    <Button Content="Spielen" Click="Play" IsEnabled="{Binding IsEnabled, ElementName=PlayButton}"
+                                            Background="#66D2FF" Foreground="#091923" Margin="0,0,8,6"/>
                                     <Button Content="Mods öffnen" Tag="Mods" Click="Navigate" Margin="0,0,8,6"/>
                                     <Button Content="Bild ändern" Click="ChangeCover" Margin="0,0,8,6"/>
                                     <Button Content="Standardbild" Click="ResetCover" Margin="0,0,8,6"/>

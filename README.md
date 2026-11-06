@@ -1,4 +1,4 @@
-# Veylo Client 0.5.0
+# Veylo Client 0.5.1
 
 Windows-Launcher und integrierter Fabric-Client für Minecraft Java.
 
@@ -8,6 +8,7 @@ In GitHub unter **Actions → Build Veylo for Windows** den erfolgreichen Lauf f
 
 ## Funktionsumfang dieser Ausbaustufe
 
+- Anklickbare Instanzkarten öffnen die jeweilige Instanz. Unter **Home** stehen bis zu drei zuletzt gestartete Instanzen als Schnellzugriffe.
 - Anthrazitfarbenes Launcher-Dashboard mit eisblauer Navigation, Profilen, Versionen, Mods, Accounts und Einstellungen.
 - Unter **Instanzen** lassen sich Name, Minecraft-Version aus dem Mojang-Katalog und Vanilla oder Fabric auswählen. Jede Instanz hat ein eigenes Standardbild, das durch PNG oder JPEG ersetzt werden kann, sowie getrennte Spielordner. **Veylo / Fabric** mit integriertem HUD ist eine eigene Option für Minecraft 1.21.11. Bestehende Instanzen behalten ihre Spielordner.
 - Unter **Mods** steht der öffentliche Modrinth-Katalog für die gewählte Fabric-Instanz zur Verfügung. Suche, Downloads, erforderliche Abhängigkeiten und Updates prüfen die exakte Minecraft-Version und den Modloader. Updates ersetzen nur eine bekannte ältere Version. Mitgelieferte Veylo-Systemmods werden vom Launcher verwaltet.

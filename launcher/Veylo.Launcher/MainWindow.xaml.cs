@@ -18,7 +18,7 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<Profile> profiles = [];
     private readonly Dictionary<Guid, Process> running = [];
     private readonly Modrinth modrinth = new();
-    private sealed record InstanceTile(Profile Profile, ImageSource Cover);
+    private sealed record InstanceTile(Profile Profile, ImageSource Cover, bool Active);
     private int modOffset;
     private string modSearch = "";
     private readonly ProfileStore store;
@@ -56,6 +56,7 @@ public partial class MainWindow : Window
             store.Save(profiles);
             ready = true;
             ProfilePicker.SelectedIndex = 0;
+            RefreshRecentInstances();
             FilterNewVersions(this, new RoutedEventArgs());
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException)
@@ -115,7 +116,11 @@ public partial class MainWindow : Window
             runningPresence[profile.Id] = (version, DateTime.UtcNow);
             startingVersion = null;
             UpdatePresence();
-            Status.Text = profile.UseVeylo ? "Minecraft läuft. Rechte Shift öffnet Veylo." : $"Minecraft läuft in {profile.Name}.";
+            profile.LastPlayedAt = DateTimeOffset.UtcNow;
+            bool historySaved = Save(profiles);
+            RefreshRecentInstances();
+            string gameStatus = profile.UseVeylo ? "Minecraft läuft. Rechte Shift öffnet Veylo." : $"Minecraft läuft in {profile.Name}.";
+            Status.Text = historySaved ? gameStatus : gameStatus + " Spielverlauf konnte nicht gespeichert werden.";
             _ = ObserveGame(profile.Id, process);
         }
         catch (OperationCanceledException)
@@ -209,9 +214,8 @@ public partial class MainWindow : Window
 
     private void RefreshInstanceCards(Profile selected)
     {
-        var tiles = profiles.Select(profile => new InstanceTile(profile, InstanceCover.Load(root, profile))).ToArray();
-        ManageProfiles.ItemsSource = tiles;
-        ManageProfiles.SelectedItem = tiles.FirstOrDefault(tile => tile.Profile.Id == selected.Id);
+        ManageProfiles.ItemsSource = profiles.Select(profile =>
+            new InstanceTile(profile, InstanceCover.Load(root, profile), profile.Id == selected.Id)).ToArray();
         SelectedInstance.Text = selected.Name + "  ·  " + selected.Details;
     }
 
@@ -312,7 +316,7 @@ public partial class MainWindow : Window
         ProfilePanel.IsEnabled = ready && !busy;
         SignInButton.IsEnabled = ready && !busy;
         SignOutButton.IsEnabled = !busy && session is not null;
-        ProfilePicker.IsEnabled = ready && !busy;
+        ProfilePicker.IsEnabled = ManageProfiles.IsEnabled = RecentInstances.IsEnabled = ready && !busy;
         VersionControls.IsEnabled = ready && !busy && ProfilePicker.SelectedItem is Profile p && !IsRunning(p);
         ModsControls.IsEnabled = VersionControls.IsEnabled && ProfilePicker.SelectedItem is Profile { HasMods: true };
         CancelButton.Visibility = installation is null ? Visibility.Collapsed : Visibility.Visible;
@@ -336,13 +340,29 @@ public partial class MainWindow : Window
         foreach (var button in Navigation.Children.OfType<Button>())
             button.Background = (Brush)new BrushConverter().ConvertFromString(
                 Equals(button.Tag, page) ? "#21445D" : "#111C26")!;
+        PageScroll.ScrollToTop();
         if (page == "Mods") RefreshMods();
     }
 
-    private void ManagedProfileChanged(object sender, SelectionChangedEventArgs e)
+    private void OpenInstanceCard(object sender, RoutedEventArgs e)
     {
-        if (ready && !syncing && ManageProfiles.SelectedItem is InstanceTile tile)
-            ProfilePicker.SelectedItem = tile.Profile;
+        if (!ready || busy || sender is not Button { CommandParameter: Profile profile }) return;
+        ProfilePicker.SelectedItem = profile;
+        SelectedInstance.BringIntoView();
+    }
+
+    private void OpenRecentInstance(object sender, RoutedEventArgs e)
+    {
+        if (!ready || busy || sender is not Button { CommandParameter: Profile profile }) return;
+        ProfilePicker.SelectedItem = profile;
+        ShowPage("Home");
+    }
+
+    private void RefreshRecentInstances()
+    {
+        var recent = ProfileStore.RecentlyPlayed(profiles);
+        RecentInstances.ItemsSource = recent;
+        RecentSection.Visibility = recent.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private async void ReloadVersions(object sender, RoutedEventArgs e) => await LoadVersions();

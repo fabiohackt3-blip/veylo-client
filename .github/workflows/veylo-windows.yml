@@ -78,7 +78,7 @@ jobs:
           } finally {
             $mod.Dispose()
           }
-          @("Veylo Client 0.5.0", "", "Entpacke die komplette ZIP und starte Veylo.exe.", "Beim ersten Spielstart laedt Veylo die Minecraft-Dateien herunter.", "Instanzen erstellen und Mods direkt aus Modrinth hinzufuegen.", "In einer Veylo-Instanz oeffnet rechte Shift das Veylo-Menue.") | Set-Content "$base/START.txt"
+          @("Veylo Client 0.5.1", "", "Entpacke die komplette ZIP und starte Veylo.exe.", "Beim ersten Spielstart laedt Veylo die Minecraft-Dateien herunter.", "Instanzen erstellen und Mods direkt aus Modrinth hinzufuegen.", "In einer Veylo-Instanz oeffnet rechte Shift das Veylo-Menue.") | Set-Content "$base/START.txt"
       - uses: actions/upload-artifact@v4
         with:
           name: Veylo-Client-Windows-x64

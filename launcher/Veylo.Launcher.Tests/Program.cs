@@ -33,11 +33,24 @@ try
     profiles.Add(new Profile(Guid.NewGuid(), "26.3 Fabric") { VersionId = "26.3", UseVeylo = false, Loader = "fabric" });
     store.Save(profiles);
     Assert(store.Load()[2].Mode == "fabric", "Fabric selection persists outside 1.21.11");
+    Assert(!ProfileStore.RecentlyPlayed(store.Load()).Any(), "legacy profiles have no invented play history");
+    var other = new Profile(Guid.NewGuid(), "Other");
+    var unplayed = new Profile(Guid.NewGuid(), "Unplayed");
+    profiles.AddRange([other, unplayed]);
+    var now = DateTimeOffset.Parse("2026-11-06T12:00:00Z");
+    profiles[0].LastPlayedAt = now.AddMinutes(-30);
+    profiles[1].LastPlayedAt = now;
+    profiles[2].LastPlayedAt = now.AddMinutes(-10);
+    other.LastPlayedAt = now.AddMinutes(-20);
+    store.Save(profiles);
+    var recent = ProfileStore.RecentlyPlayed(store.Load()).Select(profile => profile.Id);
+    Assert(recent.SequenceEqual(new[] { profiles[1].Id, profiles[2].Id, other.Id }),
+        "persisted play history is newest first and limited to three");
 }
 finally { Directory.Delete(path, recursive: true); }
 
 await CheckInstallAndUpdate();
-Console.WriteLine("Instance migration, Modrinth update rules, and checksum-safe file replacement passed.");
+Console.WriteLine("Instance migration, recent play history, Modrinth update rules, and checksum-safe file replacement passed.");
 
 static async Task CheckInstallAndUpdate()
 {
