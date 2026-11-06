@@ -173,7 +173,9 @@ internal sealed class Modrinth
                 string modId = ModManager.ReadFabricId(temporary);
                 if (modId == "veylo" || modId == "fabric-api" && bundledFabricApi)
                     throw new InvalidDataException("Diese System-Mod wird bereits mit Veylo geliefert.");
-                string target = installed?.Entry.Path ?? Path.Combine(folder, $"modrinth-{id}.jar");
+                if (!Regex.IsMatch(modId, @"\A[a-z][a-z0-9_-]{1,63}\z"))
+                    throw new InvalidDataException("Die heruntergeladene JAR enthält eine ungültige Fabric-Mod-ID.");
+                string target = installed?.Entry.Path ?? Path.Combine(folder, $"{modId}-{id}.jar");
                 if (installed is null && (File.Exists(target) || File.Exists(target + ".disabled") ||
                     ModManager.List(folder).Any(entry => ModManager.TryReadFabricId(entry.Path) == modId)))
                     throw new InvalidDataException($"Die Mod-ID „{modId}“ ist bereits in dieser Instanz vorhanden.");
@@ -235,6 +237,11 @@ internal sealed class Modrinth
                 return;
             }
             if (plan.Count >= 64) throw new InvalidDataException("Die Mod hat zu viele Abhängigkeiten.");
+            var installed = FindInstalled(version.ProjectId);
+            if (installed is not null && installed.Version.Id != version.Id &&
+                existing.Any(item => item.Entry.Enabled && !plan.ContainsKey(item.Version.ProjectId) &&
+                    item.Version.Dependencies.Any(dep => dep.Type == "required" && dep.VersionId == installed.Version.Id)))
+                throw new InvalidDataException($"Eine andere installierte Mod benötigt weiterhin {installed.Version.Number}.");
             plan.Add(version.ProjectId, version);
             foreach (var dependency in version.Dependencies.Where(item => item.Type == "required"))
             {
@@ -278,9 +285,7 @@ internal sealed class Modrinth
                 if (installedDependency?.Entry.Enabled == false)
                     throw new InvalidDataException($"Aktiviere zuerst die benötigte Mod {Path.GetFileName(installedDependency.Entry.Path)}.");
                 if (installedDependency is not null && installedDependency.Version.Id != required.Id &&
-                    (!required.IsUpdateFor(installedDependency.Version, game, Loader) ||
-                    existing.Any(item => item.Entry.Enabled && !plan.ContainsKey(item.Version.ProjectId) &&
-                        item.Version.Dependencies.Any(dep => dep.Type == "required" && dep.VersionId == installedDependency.Version.Id))))
+                    !required.IsUpdateFor(installedDependency.Version, game, Loader))
                     throw new InvalidDataException($"Die installierte Abhängigkeit {Path.GetFileName(installedDependency.Entry.Path)} passt nicht zur angeforderten Version.");
                 await Add(required);
             }
