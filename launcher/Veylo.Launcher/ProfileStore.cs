@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text.Json.Serialization;
 using System.Text.Json;
 
 namespace Veylo.Launcher;
@@ -7,6 +8,21 @@ public sealed record Profile(Guid Id, string Name)
 {
     public string VersionId { get; set; } = GameVersion.Default.Id;
     public bool UseVeylo { get; set; } = true;
+    public string Loader { get; set; } = "vanilla";
+    public string? CoverFile { get; set; }
+    [JsonIgnore]
+    public string Mode => UseVeylo ? "veylo" : Loader == "fabric" ? "fabric" : "vanilla";
+    [JsonIgnore]
+    public bool HasMods => Mode != "vanilla";
+    [JsonIgnore]
+    public string ModeLabel => Mode switch
+    {
+        "veylo" => "Veylo / Fabric",
+        "fabric" => "Fabric",
+        _ => "Vanilla"
+    };
+    [JsonIgnore]
+    public string Details => VersionId + " · " + ModeLabel;
     public int RamMb { get; set; } = 4096;
 }
 
@@ -31,6 +47,8 @@ internal sealed class ProfileStore(string directory)
             profile.RamMb = Math.Clamp(profile.RamMb, 2048, 12288);
             if (!GameVersion.IsSafeId(profile.VersionId)) profile.VersionId = GameVersion.Default.Id;
             profile.UseVeylo &= profile.VersionId == GameVersion.Default.Id;
+            if (profile.Loader != "fabric") profile.Loader = "vanilla";
+            if (profile.CoverFile != profile.Id.ToString("N") + ".png") profile.CoverFile = null;
         }
         return profiles;
     }

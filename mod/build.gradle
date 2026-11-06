@@ -41,9 +41,8 @@ processResources {
 }
 
 tasks.register('stageLauncherMods', Sync) {
-    dependsOn tasks.named('remapJar')
     into layout.buildDirectory.dir('launcher-mods')
-    from(tasks.named('remapJar').flatMap { it.archiveFile }) {
+    from('prebuilt/veylo-client-0.4.1.jar') {
         rename { 'veylo-client.jar' }
     }
     from(configurations.launcherRuntime) {

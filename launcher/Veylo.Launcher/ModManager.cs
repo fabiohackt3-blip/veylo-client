@@ -22,7 +22,7 @@ internal static class ModManager
                 path.EndsWith(".jar.disabled", StringComparison.OrdinalIgnoreCase))
             .OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase).Select(path =>
                 new Entry(path, !path.EndsWith(".disabled", StringComparison.OrdinalIgnoreCase),
-                    IsBundled(Path.GetFileName(path))))
+                    IsBundled(Path.GetFileName(path).Replace(".jar.disabled", ".jar", StringComparison.OrdinalIgnoreCase))))
         : [];
 
     public static void Toggle(Entry entry)
@@ -46,17 +46,9 @@ internal static class ModManager
             await using (var input = File.OpenRead(source))
             await using (var output = File.Create(pending))
                 await input.CopyToAsync(output);
-            using (var archive = ZipFile.OpenRead(pending))
-            {
-                var manifest = archive.GetEntry("fabric.mod.json");
-                if (manifest is null || manifest.Length > 256 * 1024)
-                    throw new InvalidDataException("Die JAR enthält kein gültiges Fabric-Mod-Manifest.");
-                using var content = manifest.Open();
-                using var document = JsonDocument.Parse(content);
-                if (!document.RootElement.TryGetProperty("id", out var id) || id.ValueKind != JsonValueKind.String ||
-                    string.IsNullOrWhiteSpace(id.GetString()) || id.GetString() is "veylo" or "fabric-api")
-                    throw new InvalidDataException("Die Mod-ID fehlt oder ist für Veylo reserviert.");
-            }
+            var id = ReadFabricId(pending);
+            if (id is "veylo" or "fabric-api")
+                throw new InvalidDataException("Die Mod-ID ist für Veylo reserviert.");
             File.Move(pending, target);
         }
         finally
@@ -64,4 +56,25 @@ internal static class ModManager
             File.Delete(pending);
         }
     }
+
+    internal static string? TryReadFabricId(string path)
+    {
+        try { return ReadFabricId(path); }
+        catch (Exception error) when (error is InvalidDataException or IOException or JsonException) { return null; }
+    }
+
+    internal static string ReadFabricId(string path)
+    {
+        using var archive = ZipFile.OpenRead(path);
+        var manifest = archive.GetEntry("fabric.mod.json");
+        if (manifest is null || manifest.Length > 256 * 1024)
+            throw new InvalidDataException("Die JAR enthält kein gültiges Fabric-Mod-Manifest.");
+        using var content = manifest.Open();
+        using var document = JsonDocument.Parse(content);
+        if (document.RootElement.TryGetProperty("id", out var id) && id.ValueKind == JsonValueKind.String &&
+            !string.IsNullOrWhiteSpace(id.GetString()))
+            return id.GetString()!;
+        throw new InvalidDataException("In der JAR fehlt die Fabric-Mod-ID.");
+    }
+
 }

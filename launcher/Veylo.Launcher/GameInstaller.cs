@@ -23,7 +23,7 @@ internal sealed class GameInstaller(string root)
             return directory; // Preserve existing worlds and settings for the original profile format.
         if (!GameVersion.IsSafeId(profile.VersionId))
             throw new InvalidDataException("Ungültige Minecraft-Version.");
-        return Path.Combine(directory, "instances", profile.VersionId + "-vanilla");
+        return Path.Combine(directory, "instances", profile.VersionId + "-" + profile.Mode);
     }
 
     public async Task<Process> Start(Profile profile, MSession session,
@@ -31,12 +31,14 @@ internal sealed class GameInstaller(string root)
     {
         string gamePath = GamePath(profile);
         string version = profile.VersionId;
-        if (profile.UseVeylo)
+        if (profile.HasMods)
         {
-            if (profile.VersionId != GameVersion.Default.Id)
+            if (profile.UseVeylo && profile.VersionId != GameVersion.Default.Id)
                 throw new InvalidDataException("Die Veylo-Mod unterstützt Minecraft 1.21.11.");
-            version = $"fabric-loader-{Loader}-{profile.VersionId}";
-            await PrepareFabric(gamePath, profile.VersionId, version, progress, cancellation);
+            var loader = profile.UseVeylo ? Loader : await StableFabricLoader(profile.VersionId, cancellation);
+            version = $"fabric-loader-{loader}-{profile.VersionId}";
+            await PrepareFabric(gamePath, profile.VersionId, loader, version, progress, cancellation);
+            if (profile.UseVeylo) StageVeyloMods(gamePath, cancellation);
         }
 
         var launcher = new MinecraftLauncher(new MinecraftPath(gamePath));
@@ -86,18 +88,33 @@ internal sealed class GameInstaller(string root)
         }
     }
 
-    private static async Task PrepareFabric(string gamePath, string minecraft, string version,
+    internal static async Task<string> StableFabricLoader(string minecraft, CancellationToken cancellation)
+    {
+        if (!GameVersion.IsSafeId(minecraft)) throw new InvalidDataException("Ungültige Minecraft-Version.");
+        using var response = await Http.GetAsync($"https://meta.fabricmc.net/v2/versions/loader/{minecraft}", cancellation);
+        if (response.StatusCode is System.Net.HttpStatusCode.NotFound or System.Net.HttpStatusCode.BadRequest)
+            throw new InvalidDataException($"Fabric ist für Minecraft {minecraft} nicht verfügbar.");
+        response.EnsureSuccessStatusCode();
+        await using var body = await response.Content.ReadAsStreamAsync(cancellation);
+        using var manifest = await JsonDocument.ParseAsync(body, cancellationToken: cancellation);
+        foreach (var entry in manifest.RootElement.EnumerateArray())
+        {
+            var candidate = entry.GetProperty("loader");
+            var loader = candidate.GetProperty("version").GetString();
+            if (candidate.GetProperty("stable").GetBoolean() && GameVersion.IsSafeId(loader)) return loader!;
+        }
+        throw new InvalidDataException($"Für Minecraft {minecraft} gibt es noch keinen stabilen Fabric Loader.");
+    }
+
+    private static async Task PrepareFabric(string gamePath, string minecraft, string loader, string version,
         IProgress<InstallProgress> progress, CancellationToken cancellation)
     {
-        string modsSource = Path.Combine(AppContext.BaseDirectory, "mods");
-        if (Payload.Any(file => !File.Exists(Path.Combine(modsSource, file))))
-            throw new InvalidDataException("Die Veylo-Mod fehlt. Entpacke das vollständige Windows-Paket.");
         string versionPath = Path.Combine(gamePath, "versions", version, version + ".json");
         if (!File.Exists(versionPath))
         {
             progress.Report(new("Fabric wird eingerichtet …"));
             string json = await Http.GetStringAsync(
-                $"https://meta.fabricmc.net/v2/versions/loader/{minecraft}/{Loader}/profile/json", cancellation);
+                $"https://meta.fabricmc.net/v2/versions/loader/{minecraft}/{loader}/profile/json", cancellation);
             using var manifest = JsonDocument.Parse(json);
             if (manifest.RootElement.GetProperty("id").GetString() != version ||
                 manifest.RootElement.GetProperty("inheritsFrom").GetString() != minecraft)
@@ -106,6 +123,13 @@ internal sealed class GameInstaller(string root)
             await File.WriteAllTextAsync(versionPath + ".tmp", json, cancellation);
             File.Move(versionPath + ".tmp", versionPath, overwrite: true);
         }
+    }
+
+    private static void StageVeyloMods(string gamePath, CancellationToken cancellation)
+    {
+        string modsSource = Path.Combine(AppContext.BaseDirectory, "mods");
+        if (Payload.Any(file => !File.Exists(Path.Combine(modsSource, file))))
+            throw new InvalidDataException("Die Veylo-Mod fehlt. Entpacke das vollständige Windows-Paket.");
         string mods = Path.Combine(gamePath, "mods");
         Directory.CreateDirectory(mods);
         foreach (var file in Payload)

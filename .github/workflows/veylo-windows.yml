@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      - name: Check instance and mod update rules
+        run: dotnet run --project launcher/Veylo.Launcher.Tests -c Release
       - name: Build and stage the Fabric client
         run: |
           & ./mod/gradlew.bat -p mod --no-daemon stageLauncherMods
@@ -29,6 +31,34 @@ jobs:
         run: |
           dotnet publish launcher/Veylo.Launcher/Veylo.Launcher.csproj -c Release -r win-x64 --self-contained true -o dist/Veylo
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Sign the Windows app when a publisher certificate is configured
+        env:
+          VEYLO_SIGNING_PFX: ${{ secrets.VEYLO_SIGNING_PFX }}
+          VEYLO_SIGNING_PASSWORD: ${{ secrets.VEYLO_SIGNING_PASSWORD }}
+          VEYLO_REQUIRE_SIGNING: ${{ vars.VEYLO_REQUIRE_SIGNING }}
+        run: |
+          if (!$env:VEYLO_SIGNING_PFX) {
+            if ($env:VEYLO_REQUIRE_SIGNING -eq 'true') { throw 'Publisher signing is required but no certificate is configured.' }
+            Write-Warning 'No publisher certificate configured. This build is unsigned.'
+            return
+          }
+          $sdk = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/bin'
+          $signTool = Get-ChildItem $sdk -Directory | Sort-Object { [version]$_.Name } -Descending |
+            ForEach-Object { Join-Path $_.FullName 'x64/signtool.exe' } |
+            Where-Object { Test-Path $_ -PathType Leaf } | Select-Object -First 1
+          if (!$signTool) { throw 'Windows SDK SignTool is missing.' }
+          $certificate = Join-Path $env:RUNNER_TEMP "veylo-$([guid]::NewGuid()).pfx"
+          try {
+            [IO.File]::WriteAllBytes($certificate, [Convert]::FromBase64String($env:VEYLO_SIGNING_PFX))
+            $parameters = @('sign', '/fd', 'SHA256', '/tr', 'http://timestamp.digicert.com', '/td', 'SHA256', '/f', $certificate)
+            if ($env:VEYLO_SIGNING_PASSWORD) { $parameters += @('/p', $env:VEYLO_SIGNING_PASSWORD) }
+            & $signTool @parameters 'dist/Veylo/Veylo.exe'
+            if ($LASTEXITCODE -ne 0) { throw 'Authenticode signing failed.' }
+            & $signTool verify /pa 'dist/Veylo/Veylo.exe'
+            if ($LASTEXITCODE -ne 0) { throw 'Windows did not verify the publisher signature.' }
+          } finally {
+            Remove-Item $certificate -Force -ErrorAction SilentlyContinue
+          }
       - name: Verify the Windows payload
         run: |
           $base = 'dist/Veylo'
@@ -41,13 +71,13 @@ jobs:
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           $mod = [IO.Compression.ZipFile]::OpenRead((Resolve-Path "$base/mods/veylo-client.jar").Path)
           try {
-            if (!$mod.GetEntry('fabric.mod.json') -or !$mod.GetEntry('de/veylo/client/VeyloClient.class')) {
+            if (!$mod.GetEntry('fabric.mod.json') -or !$mod.GetEntry('de/veylo/client/ServerScoreboard.class') -or !$mod.GetEntry('assets/veylo/font/smooth.json')) {
               throw 'The Veylo mod is incomplete.'
             }
           } finally {
             $mod.Dispose()
           }
-          @("Veylo Client 0.4.0", "", "Entpacke die komplette ZIP und starte Veylo.exe.", "Beim ersten Spielstart laedt Veylo die Minecraft-Dateien herunter.", "Im Spiel oeffnet rechte Shift das Veylo-Menue.") | Set-Content "$base/START.txt"
+          @("Veylo Client 0.5.0", "", "Entpacke die komplette ZIP und starte Veylo.exe.", "Beim ersten Spielstart laedt Veylo die Minecraft-Dateien herunter.", "Instanzen erstellen und Mods direkt aus Modrinth hinzufuegen.", "In einer Veylo-Instanz oeffnet rechte Shift das Veylo-Menue.") | Set-Content "$base/START.txt"
       - uses: actions/upload-artifact@v4
         with:
           name: Veylo-Client-Windows-x64

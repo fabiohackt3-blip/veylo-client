@@ -76,12 +76,12 @@
                     <Image Source="Assets/Veylo.ico" Width="32" Height="32" RenderOptions.BitmapScalingMode="HighQuality"/>
                     <TextBlock Text="VEYLO" FontSize="22" FontWeight="Bold" Margin="8,0,0,0"/>
                 </StackPanel>
-                <TextBlock DockPanel.Dock="Bottom" Text="VEYLO · 0.4.0" Foreground="{StaticResource Muted}" Margin="7,12"/>
+                <TextBlock DockPanel.Dock="Bottom" Text="VEYLO · 0.5.0" Foreground="{StaticResource Muted}" Margin="7,12"/>
                 <StackPanel x:Name="Navigation">
                     <Button Style="{StaticResource Navigation}" Content="Home" Tag="Home" Click="Navigate"/>
                     <Button Style="{StaticResource Navigation}" Content="Versionen" Tag="Versions" Click="Navigate"/>
                     <Button Style="{StaticResource Navigation}" Content="Mods" Tag="Mods" Click="Navigate"/>
-                    <Button Style="{StaticResource Navigation}" Content="Profile" Tag="Profiles" Click="Navigate"/>
+                    <Button Style="{StaticResource Navigation}" Content="Instanzen" Tag="Profiles" Click="Navigate"/>
                     <Button Style="{StaticResource Navigation}" Content="Accounts" Tag="Accounts" Click="Navigate"/>
                     <Button Style="{StaticResource Navigation}" Content="Einstellungen" Tag="Settings" Click="Navigate"/>
                 </StackPanel>
@@ -109,7 +109,7 @@
                                 <StackPanel VerticalAlignment="Center" Margin="26,0">
                                     <TextBlock Text="VEYLO  /  JAVA CLIENT" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Accent}"/>
                                     <TextBlock Text="Bereit zum Spielen" FontSize="34" FontWeight="Bold" Margin="0,6,0,0"/>
-                                    <TextBlock Text="Minecraft starten und dein Spielprofil verwalten" Margin="2,8,0,0"
+                                    <TextBlock Text="Deine Minecraft-Instanzen, Welten und Mods" Margin="2,8,0,0"
                                                Foreground="#CFDFE9" TextWrapping="Wrap" FontSize="15"/>
                                 </StackPanel>
                             </Grid>
@@ -118,7 +118,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                 <StackPanel Margin="0,0,10,0">
-                                    <TextBlock Text="Spielprofil" Foreground="{StaticResource Muted}"/>
+                                    <TextBlock Text="Aktive Instanz" Foreground="{StaticResource Muted}"/>
                                     <ComboBox x:Name="ProfilePicker" DisplayMemberPath="Name" Margin="0,6,0,0" SelectionChanged="ProfileChanged"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Margin="0,0,10,0">
@@ -132,11 +132,11 @@
                         </Border>
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
-                                <TextBlock Text="Veylo 0.4.0" Style="{StaticResource Title}"/>
+                                <TextBlock Text="Veylo 0.5.0" Style="{StaticResource Title}"/>
                                 <TextBlock Text="Neues Right-Shift-Menü, überarbeitetes HUD und lokale Cosmetics."
                                            Foreground="{StaticResource Muted}" TextWrapping="Wrap"/>
                                 <WrapPanel Margin="0,16,0,0">
-                                    <Button Content="Versionen verwalten" Tag="Versions" Click="Navigate" Margin="0,0,8,6"/>
+                                    <Button Content="Meine Instanzen" Tag="Profiles" Click="Navigate" Margin="0,0,8,6"/>
                                     <Button Content="Mods verwalten" Tag="Mods" Click="Navigate" Margin="0,0,8,6"/>
                                     <Button Content="Einstellungen" Tag="Settings" Click="Navigate" Margin="0,0,0,6"/>
                                 </WrapPanel>
@@ -150,38 +150,118 @@
                                 <TextBlock Text="Minecraft-Version für das aktive Profil" FontWeight="SemiBold"/>
                                 <ComboBox x:Name="VersionPicker" Margin="0,9,0,9" SelectionChanged="VersionChanged"/>
                                 <CheckBox x:Name="Snapshots" Content="Snapshots anzeigen" Checked="FilterVersions" Unchecked="FilterVersions"/>
-                                <CheckBox x:Name="VeyloMode" Content="Veylo mit Fabric für Minecraft 1.21.11"
-                                          Checked="LoaderChanged" Unchecked="LoaderChanged"/>
+                                <TextBlock Text="Modloader" Margin="0,8,0,4"/>
+                                <ComboBox x:Name="LoaderPicker" SelectionChanged="LoaderChanged">
+                                    <ComboBoxItem Content="Vanilla"/>
+                                    <ComboBoxItem Content="Fabric"/>
+                                    <ComboBoxItem x:Name="VeyloChoice" Content="Veylo / Fabric (1.21.11)"/>
+                                </ComboBox>
                                 <TextBlock x:Name="VersionInfo" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,6,0,12"/>
                                 <Button Content="Offizielle Versionsliste aktualisieren" Click="ReloadVersions" HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                     <StackPanel x:Name="ModsPage" Visibility="Collapsed">
-                        <TextBlock Text="Mods" Style="{StaticResource Title}"/>
-                        <Border Style="{StaticResource Card}">
-                            <StackPanel x:Name="ModsControls">
-                                <TextBlock x:Name="ModsInfo" TextWrapping="Wrap" Margin="0,0,0,12"/>
-                                <ListBox x:Name="ModList" Background="#0B141D" Foreground="#E8F6FF" BorderBrush="#365266" Height="190"/>
-                                <WrapPanel Margin="0,12,0,0">
-                                    <Button Content="JAR importieren" Click="ImportMod" Margin="0,0,8,6"/>
-                                    <Button Content="Aktivieren / deaktivieren" Click="ToggleMod" Margin="0,0,8,6"/>
-                                    <Button Content="Mod-Ordner öffnen" Click="OpenMods" Margin="0,0,0,6"/>
-                                </WrapPanel>
-                            </StackPanel>
-                        </Border>
+                        <TextBlock x:Name="ModsTitle" Text="Instanz-Mods" Style="{StaticResource Title}"/>
+                        <TextBlock x:Name="ModsInfo" TextWrapping="Wrap" Margin="0,0,0,12" Foreground="{StaticResource Muted}"/>
+                        <StackPanel x:Name="ModsControls">
+                            <Border Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="Modrinth entdecken" FontSize="18" FontWeight="SemiBold"/>
+                                    <DockPanel Margin="0,10,0,10">
+                                        <Button DockPanel.Dock="Right" Content="Suchen" Click="SearchMods" Margin="8,0,0,0"/>
+                                        <TextBox x:Name="ModQuery" MaxLength="100" VerticalContentAlignment="Center"
+                                                 AutomationProperties.Name="Nach Modrinth-Mods suchen" KeyDown="ModQueryKeyDown"/>
+                                    </DockPanel>
+                                    <ListBox x:Name="SearchResults" Background="#0B141D" Foreground="#E8F6FF" BorderBrush="#365266" Height="194"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="6,4">
+                                                    <TextBlock Text="{Binding Project.Title}" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" Foreground="#A3B6C7" FontSize="12"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <WrapPanel Margin="0,10,0,0">
+                                        <Button Content="Auswahl installieren" Background="#66D2FF" Foreground="#091923"
+                                                Click="InstallModrinth" Margin="0,0,8,6"/>
+                                        <Button x:Name="PreviousMods" Content="Zurück" Click="PreviousModPage" Margin="0,0,8,6" IsEnabled="False"/>
+                                        <Button x:Name="NextMods" Content="Weiter" Click="NextModPage" Margin="0,0,8,6" IsEnabled="False"/>
+                                        <TextBlock x:Name="ModPageInfo" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="Installierte Mods" FontSize="18" FontWeight="SemiBold"/>
+                                    <ListBox x:Name="ModList" Background="#0B141D" Foreground="#E8F6FF" BorderBrush="#365266" Height="140" Margin="0,10,0,0"/>
+                                    <WrapPanel Margin="0,12,0,0">
+                                        <Button Content="JAR importieren" Click="ImportMod" Margin="0,0,8,6"/>
+                                        <Button Content="Aktivieren / deaktivieren" Click="ToggleMod" Margin="0,0,8,6"/>
+                                        <Button Content="Mod-Ordner öffnen" Click="OpenMods" Margin="0,0,8,6"/>
+                                        <Button Content="Updates prüfen" Click="CheckModUpdates" Margin="0,0,8,6"/>
+                                    </WrapPanel>
+                                    <TextBlock x:Name="UpdateInfo" TextWrapping="Wrap" Margin="0,8,0,6"/>
+                                    <ListBox x:Name="ModUpdates" Background="#0B141D" Foreground="#E8F6FF" BorderBrush="#365266" Height="110" Visibility="Collapsed"/>
+                                    <Button x:Name="ApplyModUpdate" Content="Ausgewählte Mod aktualisieren" Click="UpdateModrinth"
+                                            Visibility="Collapsed" Margin="0,8,0,0" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
                     </StackPanel>
                     <StackPanel x:Name="ProfilesPage" Visibility="Collapsed">
-                        <TextBlock Text="Spielprofile" Style="{StaticResource Title}"/>
+                        <TextBlock Text="Meine Instanzen" Style="{StaticResource Title}"/>
+                        <TextBlock Text="Jede Instanz hat eigene Welten, Mods und Einstellungen." Foreground="{StaticResource Muted}" Margin="0,0,0,12"/>
+                        <ListBox x:Name="ManageProfiles" SelectionChanged="ManagedProfileChanged" Background="Transparent"
+                                 BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,12">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Width="164" Background="#131F29" BorderBrush="#365266" BorderThickness="1" CornerRadius="8">
+                                        <StackPanel>
+                                            <Image Source="{Binding Cover}" Height="88" Stretch="UniformToFill"/>
+                                            <TextBlock Text="{Binding Profile.Name}" Margin="9,8,9,2" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding Profile.Details}" Margin="9,0,9,8" Foreground="#A3B6C7" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                         <Border Style="{StaticResource Card}">
                             <StackPanel x:Name="ProfilePanel">
-                                <ComboBox x:Name="ManageProfiles" DisplayMemberPath="Name" SelectionChanged="ManagedProfileChanged" Margin="0,0,0,12"/>
-                                <TextBlock Text="Neues Profil"/>
-                                <TextBox x:Name="ProfileName" MaxLength="32" Margin="0,7,0,9"/>
-                                <Button Content="Profil hinzufügen" Click="AddProfile" HorizontalAlignment="Left"/>
-                                <TextBlock x:Name="RamLabel" Text="Arbeitsspeicher" Margin="0,18,0,4"/>
+                                <TextBlock x:Name="SelectedInstance" Text="Aktive Instanz" FontWeight="SemiBold" FontSize="17"/>
+                                <WrapPanel Margin="0,8,0,0">
+                                    <Button Content="Mods öffnen" Tag="Mods" Click="Navigate" Margin="0,0,8,6"/>
+                                    <Button Content="Bild ändern" Click="ChangeCover" Margin="0,0,8,6"/>
+                                    <Button Content="Standardbild" Click="ResetCover" Margin="0,0,8,6"/>
+                                </WrapPanel>
+                                <TextBlock x:Name="RamLabel" Text="Arbeitsspeicher" Margin="0,10,0,4"/>
                                 <Slider x:Name="Ram" Minimum="2048" Maximum="12288" Value="4096" TickFrequency="512"
                                         IsSnapToTickEnabled="True" ValueChanged="RamChanged"/>
+                                <Separator Margin="0,15"/>
+                                <TextBlock Text="Neue Instanz" FontWeight="SemiBold" FontSize="17"/>
+                                <TextBox x:Name="ProfileName" AutomationProperties.Name="Name der neuen Instanz" MaxLength="32" Margin="0,7,0,9"/>
+                                <Grid Margin="0,0,0,9">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <StackPanel Margin="0,0,8,0">
+                                        <TextBlock Text="Minecraft-Version" Margin="0,0,0,4"/>
+                                        <ComboBox x:Name="NewVersion" SelectionChanged="NewVersionChanged"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Modloader" Margin="0,0,0,4"/>
+                                        <ComboBox x:Name="NewLoader" SelectedIndex="1">
+                                            <ComboBoxItem Content="Vanilla"/>
+                                            <ComboBoxItem Content="Fabric"/>
+                                            <ComboBoxItem x:Name="NewVeyloChoice" Content="Veylo / Fabric (1.21.11)"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                </Grid>
+                                <CheckBox x:Name="NewSnapshots" Content="Snapshots anzeigen" Checked="FilterNewVersions" Unchecked="FilterNewVersions"/>
+                                <Button Content="Instanz erstellen" Click="AddProfile" Background="#66D2FF" Foreground="#091923" HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>

@@ -17,6 +17,10 @@ public partial class MainWindow : Window
 {
     private readonly ObservableCollection<Profile> profiles = [];
     private readonly Dictionary<Guid, Process> running = [];
+    private readonly Modrinth modrinth = new();
+    private sealed record InstanceTile(Profile Profile, ImageSource Cover);
+    private int modOffset;
+    private string modSearch = "";
     private readonly ProfileStore store;
     private readonly GameInstaller installer;
     private readonly JELoginHandler login;
@@ -27,7 +31,7 @@ public partial class MainWindow : Window
     private readonly string root;
     private readonly DiscordPresence presence = new();
     private CancellationTokenSource? installation;
-    private IReadOnlyList<GameVersion> versions = [GameVersion.Default, new("1.20.1"), new("1.16.5"), new("1.12.2"), new("1.8.9")];
+    private IReadOnlyList<GameVersion> versions = [new("26.3"), GameVersion.Default, new("1.20.1"), new("1.16.5"), new("1.12.2"), new("1.8.9")];
     private bool loadingVersions;
     private string? startingVersion;
     private readonly Dictionary<Guid, (string Version, DateTime Started)> runningPresence = [];
@@ -43,7 +47,7 @@ public partial class MainWindow : Window
             .Build();
         InitializeComponent();
         ProfilePicker.ItemsSource = profiles;
-        ManageProfiles.ItemsSource = profiles;
+
         ShowPage("Home");
         ReadDiscordSettings();
         try
@@ -52,6 +56,7 @@ public partial class MainWindow : Window
             store.Save(profiles);
             ready = true;
             ProfilePicker.SelectedIndex = 0;
+            FilterNewVersions(this, new RoutedEventArgs());
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException)
         {
@@ -110,7 +115,7 @@ public partial class MainWindow : Window
             runningPresence[profile.Id] = (version, DateTime.UtcNow);
             startingVersion = null;
             UpdatePresence();
-            Status.Text = profile.UseVeylo ? "Minecraft läuft. Rechte Shift öffnet Veylo." : "Minecraft läuft im Vanilla-Profil.";
+            Status.Text = profile.UseVeylo ? "Minecraft läuft. Rechte Shift öffnet Veylo." : $"Minecraft läuft in {profile.Name}.";
             _ = ObserveGame(profile.Id, process);
         }
         catch (OperationCanceledException)
@@ -158,28 +163,110 @@ public partial class MainWindow : Window
         }
     }
 
-    private void AddProfile(object sender, RoutedEventArgs e)
+    private async void AddProfile(object sender, RoutedEventArgs e)
     {
+        if (busy || NewVersion.SelectedItem is not GameVersion version || NewLoader.SelectedIndex < 0) return;
         var name = ProfileName.Text.Trim();
         if (name.Length == 0 || profiles.Any(profile => profile.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
         {
-            Status.Text = "Gib einen neuen Profilnamen ein.";
+            Status.Text = "Gib einen neuen Instanznamen ein.";
             return;
         }
-
-        var profile = new Profile(Guid.NewGuid(), name);
+        bool veylo = NewLoader.SelectedIndex == 2 && version.Id == GameVersion.Default.Id;
+        var profile = new Profile(Guid.NewGuid(), name)
+        {
+            VersionId = version.Id,
+            UseVeylo = veylo,
+            Loader = NewLoader.SelectedIndex == 1 ? "fabric" : "vanilla"
+        };
+        if (profile.Mode == "fabric")
+        {
+            busy = true;
+            RefreshActions();
+            try
+            {
+                Status.Text = $"Fabric für Minecraft {version.Id} wird geprüft …";
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+                await GameInstaller.StableFabricLoader(version.Id, timeout.Token);
+            }
+            catch (Exception error)
+            {
+                Status.Text = error is InvalidDataException ? error.Message : "Fabric konnte nicht geprüft werden. Prüfe deine Internetverbindung.";
+                return;
+            }
+            finally
+            {
+                busy = false;
+                RefreshActions();
+            }
+        }
         if (!Save(profiles.Append(profile))) return;
         profiles.Add(profile);
         ProfilePicker.SelectedItem = profile;
         ProfileName.Clear();
-        Status.Text = "Profil erstellt.";
+        Status.Text = "Instanz erstellt.";
+    }
+
+    private void RefreshInstanceCards(Profile selected)
+    {
+        var tiles = profiles.Select(profile => new InstanceTile(profile, InstanceCover.Load(root, profile))).ToArray();
+        ManageProfiles.ItemsSource = tiles;
+        ManageProfiles.SelectedItem = tiles.FirstOrDefault(tile => tile.Profile.Id == selected.Id);
+        SelectedInstance.Text = selected.Name + "  ·  " + selected.Details;
+    }
+
+    private void ChangeCover(object sender, RoutedEventArgs e)
+    {
+        if (ProfilePicker.SelectedItem is not Profile profile) return;
+        var dialog = new OpenFileDialog { Filter = "Bilder (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp" };
+        if (dialog.ShowDialog(this) != true) return;
+        string? previous = profile.CoverFile;
+        try
+        {
+            profile.CoverFile = InstanceCover.Save(root, profile, dialog.FileName);
+            if (!Save(profiles)) { profile.CoverFile = previous; return; }
+            RefreshInstanceCards(profile);
+            Status.Text = "Instanzbild gespeichert.";
+        }
+        catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException
+            or NotSupportedException or FormatException or ArgumentException)
+        {
+            Status.Text = error is InvalidDataException ? error.Message : "Das Bild konnte nicht geöffnet werden.";
+        }
+    }
+
+    private void ResetCover(object sender, RoutedEventArgs e)
+    {
+        if (ProfilePicker.SelectedItem is not Profile profile) return;
+        string? previous = profile.CoverFile;
+        profile.CoverFile = null;
+        if (!Save(profiles)) { profile.CoverFile = previous; return; }
+        RefreshInstanceCards(profile);
+        Status.Text = "Standardbild wiederhergestellt.";
+    }
+
+    private void FilterNewVersions(object sender, RoutedEventArgs e)
+    {
+        if (!ready) return;
+        string id = (NewVersion.SelectedItem as GameVersion)?.Id ?? GameVersion.Default.Id;
+        var visible = versions.Where(item => !item.Snapshot || NewSnapshots.IsChecked == true).ToArray();
+        NewVersion.ItemsSource = visible;
+        NewVersion.SelectedItem = visible.FirstOrDefault(item => item.Id == id) ?? visible.FirstOrDefault();
+    }
+
+    private void NewVersionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (NewVeyloChoice is null || NewLoader is null) return;
+        NewVeyloChoice.IsEnabled = (NewVersion.SelectedItem as GameVersion)?.Id == GameVersion.Default.Id;
+        if (!NewVeyloChoice.IsEnabled && NewLoader.SelectedIndex == 2) NewLoader.SelectedIndex = 1;
     }
 
     private void ProfileChanged(object sender, SelectionChangedEventArgs e)
     {
         if (!ready || ProfilePicker.SelectedItem is not Profile profile) return;
         syncing = true;
-        ManageProfiles.SelectedItem = profile;
+        RefreshInstanceCards(profile);
+        ResetModView();
         Ram.Value = profile.RamMb;
         ApplyVersionFilter(profile);
         RefreshMods();
@@ -227,7 +314,7 @@ public partial class MainWindow : Window
         SignOutButton.IsEnabled = !busy && session is not null;
         ProfilePicker.IsEnabled = ready && !busy;
         VersionControls.IsEnabled = ready && !busy && ProfilePicker.SelectedItem is Profile p && !IsRunning(p);
-        ModsControls.IsEnabled = VersionControls.IsEnabled && ProfilePicker.SelectedItem is Profile { UseVeylo: true };
+        ModsControls.IsEnabled = VersionControls.IsEnabled && ProfilePicker.SelectedItem is Profile { HasMods: true };
         CancelButton.Visibility = installation is null ? Visibility.Collapsed : Visibility.Visible;
         PlayButton.IsEnabled = ready && !busy && session is not null &&
                                ProfilePicker.SelectedItem is Profile profile && !IsRunning(profile);
@@ -254,8 +341,8 @@ public partial class MainWindow : Window
 
     private void ManagedProfileChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (ready && !syncing && ManageProfiles.SelectedItem is Profile profile)
-            ProfilePicker.SelectedItem = profile;
+        if (ready && !syncing && ManageProfiles.SelectedItem is InstanceTile tile)
+            ProfilePicker.SelectedItem = tile.Profile;
     }
 
     private async void ReloadVersions(object sender, RoutedEventArgs e) => await LoadVersions();
@@ -277,6 +364,7 @@ public partial class MainWindow : Window
         {
             loadingVersions = false;
             if (ProfilePicker.SelectedItem is Profile profile) ApplyVersionFilter(profile);
+            FilterNewVersions(this, new RoutedEventArgs());
         }
     }
 
@@ -294,9 +382,9 @@ public partial class MainWindow : Window
         if (visible.All(item => item.Id != profile.VersionId)) visible.Insert(0, new(profile.VersionId));
         VersionPicker.ItemsSource = visible;
         VersionPicker.SelectedItem = visible.First(item => item.Id == profile.VersionId);
-        VeyloMode.IsEnabled = profile.VersionId == GameVersion.Default.Id;
-        VeyloMode.IsChecked = profile.UseVeylo;
-        HomeVersion.Content = profile.VersionId + (profile.UseVeylo ? " · Veylo / Fabric" : " · Vanilla");
+        VeyloChoice.IsEnabled = profile.VersionId == GameVersion.Default.Id;
+        LoaderPicker.SelectedIndex = profile.Mode switch { "veylo" => 2, "fabric" => 1, _ => 0 };
+        HomeVersion.Content = profile.Details;
         syncing = wasSyncing;
     }
 
@@ -304,40 +392,49 @@ public partial class MainWindow : Window
     {
         if (!ready || syncing || busy || VersionPicker.SelectedItem is not GameVersion version ||
             ProfilePicker.SelectedItem is not Profile profile || IsRunning(profile)) return;
-        SelectVersion(profile, version.Id, version.Id == GameVersion.Default.Id);
+        SelectVersion(profile, version.Id, profile.Mode == "veylo" && version.Id != GameVersion.Default.Id ? "fabric" : profile.Mode);
     }
 
     private void LoaderChanged(object sender, RoutedEventArgs e)
     {
         if (!ready || syncing || busy || ProfilePicker.SelectedItem is not Profile profile ||
-            IsRunning(profile) || profile.VersionId != GameVersion.Default.Id) return;
-        SelectVersion(profile, profile.VersionId, VeyloMode.IsChecked == true);
+            IsRunning(profile) || LoaderPicker.SelectedIndex < 0) return;
+        string mode = LoaderPicker.SelectedIndex switch { 2 when profile.VersionId == GameVersion.Default.Id => "veylo",
+            1 => "fabric", _ => "vanilla" };
+        SelectVersion(profile, profile.VersionId, mode);
     }
 
-    private void SelectVersion(Profile profile, string version, bool useVeylo)
+    private void SelectVersion(Profile profile, string version, string mode)
     {
         string oldVersion = profile.VersionId;
-        bool oldLoader = profile.UseVeylo;
+        bool oldVeylo = profile.UseVeylo;
+        string oldLoader = profile.Loader;
         profile.VersionId = version;
-        profile.UseVeylo = useVeylo;
+        profile.UseVeylo = mode == "veylo";
+        profile.Loader = mode == "fabric" ? "fabric" : "vanilla";
         if (!Save(profiles))
         {
             profile.VersionId = oldVersion;
-            profile.UseVeylo = oldLoader;
+            profile.UseVeylo = oldVeylo;
+            profile.Loader = oldLoader;
         }
         ApplyVersionFilter(profile);
+        RefreshInstanceCards(profile);
+        ResetModView();
         RefreshMods();
         RefreshActions();
     }
 
-    private string? ModsFolder() => ProfilePicker.SelectedItem is Profile { UseVeylo: true } profile
+    private string? ModsFolder() => ProfilePicker.SelectedItem is Profile { HasMods: true } profile
         ? Path.Combine(installer.GamePath(profile), "mods") : null;
 
     private void RefreshMods()
     {
         var folder = ModsFolder();
-        ModsInfo.Text = folder is null ? "Wähle ein Veylo/Fabric-Profil, um seine Mods zu verwalten." :
-            "Mods für das aktive Fabric-Profil. Importiere JAR-Dateien für Minecraft 1.21.11.";
+        var profile = ProfilePicker.SelectedItem as Profile;
+        ModsTitle.Text = profile is null ? "Instanz-Mods" : profile.Name + " · Mods";
+        ModsInfo.Text = folder is null ? "Öffne eine Fabric-Instanz oder wähle Fabric unter Versionen." :
+            $"Minecraft {profile!.VersionId} · Fabric. Die Modrinth-Suche und Updates sind auf diese Instanz gefiltert.";
         try
         {
             ModList.ItemsSource = folder is null ? null : ModManager.List(folder).ToArray();
@@ -349,9 +446,128 @@ public partial class MainWindow : Window
         }
     }
 
+    private void ResetModView()
+    {
+        modOffset = 0;
+        modSearch = "";
+        ModQuery.Clear();
+        SearchResults.ItemsSource = null;
+        PreviousMods.IsEnabled = false;
+        NextMods.IsEnabled = false;
+        ModPageInfo.Text = "Leere Suche zeigt beliebte Mods.";
+        ShowUpdates([]);
+    }
+
+    private async void SearchMods(object sender, RoutedEventArgs e) => await SearchModPage(ModQuery.Text.Trim(), 0);
+
+    private async void ModQueryKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != System.Windows.Input.Key.Enter) return;
+        e.Handled = true;
+        await SearchModPage(ModQuery.Text.Trim(), 0);
+    }
+
+    private async void PreviousModPage(object sender, RoutedEventArgs e) =>
+        await SearchModPage(modSearch, Math.Max(0, modOffset - Modrinth.PageSize));
+
+    private async void NextModPage(object sender, RoutedEventArgs e) =>
+        await SearchModPage(modSearch, modOffset + Modrinth.PageSize);
+
+    private Task SearchModPage(string query, int offset) => RunModOperation("Modrinth wird durchsucht …",
+        async (profile, _, token) =>
+        {
+            var page = await modrinth.Search(query, profile.VersionId, offset, token);
+            modOffset = offset;
+            modSearch = query;
+            SearchResults.ItemsSource = page.Results;
+            if (page.Results.Length > 0) SearchResults.SelectedIndex = 0;
+            PreviousMods.IsEnabled = offset > 0;
+            NextMods.IsEnabled = page.HasMore;
+            ModPageInfo.Text = page.Results.Length == 0 ? "Keine passenden Mods auf dieser Seite" :
+                $"Seite {offset / Modrinth.PageSize + 1}";
+            return page.Results.Length == 0 ? "Auf dieser Seite passen keine Mods zu deiner Instanz." :
+                $"{page.Results.Length} kompatible Mods auf dieser Seite.";
+        });
+
+    private async void InstallModrinth(object sender, RoutedEventArgs e)
+    {
+        if (SearchResults.SelectedItem is not Modrinth.SearchResult result)
+        {
+            Status.Text = "Wähle eine Mod aus den Suchergebnissen.";
+            return;
+        }
+        await RunModOperation($"{result.Project.Title} wird heruntergeladen und geprüft …", async (profile, folder, token) =>
+        {
+            int count = await modrinth.Install(folder, profile.VersionId, result.Version, null, token, profile.UseVeylo);
+            ShowUpdates([]);
+            return $"{result.Project.Title} {result.Version.Number} installiert · {count} Datei(en).";
+        });
+    }
+
+    private async void CheckModUpdates(object sender, RoutedEventArgs e)
+    {
+        await RunModOperation("Installierte Dateien werden mit Modrinth abgeglichen …", async (profile, folder, token) =>
+        {
+            var updates = await modrinth.Updates(folder, profile.VersionId, token);
+            ShowUpdates(updates, checkedNow: true);
+            return updates.Length == 0 ? "Keine neueren kompatiblen Modrinth-Versionen gefunden." :
+                $"{updates.Length} kompatible Updates verfügbar.";
+        });
+    }
+
+    private async void UpdateModrinth(object sender, RoutedEventArgs e)
+    {
+        if (ModUpdates.SelectedItem is not Modrinth.Update update) return;
+        await RunModOperation("Die neue Mod-Version wird heruntergeladen und geprüft …", async (profile, folder, token) =>
+        {
+            await modrinth.Install(folder, profile.VersionId, update.Version, update, token, profile.UseVeylo);
+            var remaining = ((IEnumerable<Modrinth.Update>)ModUpdates.ItemsSource).Where(item => item != update).ToArray();
+            ShowUpdates(remaining, checkedNow: true);
+            return $"Mod auf {update.Version.Number} aktualisiert.";
+        });
+    }
+
+    private void ShowUpdates(Modrinth.Update[] updates, bool checkedNow = false)
+    {
+        ModUpdates.ItemsSource = updates;
+        ModUpdates.Visibility = ApplyModUpdate.Visibility = updates.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+        if (updates.Length > 0) ModUpdates.SelectedIndex = 0;
+        UpdateInfo.Text = updates.Length > 0 ? $"{updates.Length} Updates für diese Version und Fabric" :
+            checkedNow ? "Keine weiteren kompatiblen Updates in dieser Liste." : "";
+    }
+
+    private async Task RunModOperation(string message, Func<Profile, string, CancellationToken, Task<string>> action)
+    {
+        if (busy || ProfilePicker.SelectedItem is not Profile profile || IsRunning(profile) || ModsFolder() is not string folder) return;
+        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+        installation = operation;
+        busy = true;
+        RefreshActions();
+        ShowProgress(new(message));
+        try { Status.Text = await action(profile, folder, operation.Token); }
+        catch (OperationCanceledException) { Status.Text = "Modrinth-Vorgang abgebrochen oder Zeitlimit erreicht."; }
+        catch (InvalidDataException error) { Status.Text = error.Message; }
+        catch (System.Net.Http.HttpRequestException error)
+        {
+            Status.Text = error.StatusCode == System.Net.HttpStatusCode.TooManyRequests ?
+                "Modrinth begrenzt die Anfragen gerade. Versuche es in einer Minute erneut." :
+                "Modrinth ist gerade nicht erreichbar oder konnte die Datei nicht liefern.";
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or JsonException)
+        { Status.Text = "Die Mod-Dateien konnten nicht gelesen, geprüft oder gespeichert werden."; }
+        finally
+        {
+            installation = null;
+            busy = false;
+            DownloadProgress.Visibility = Visibility.Collapsed;
+            RefreshMods();
+            RefreshActions();
+        }
+    }
+
     private async void ImportMod(object sender, RoutedEventArgs e)
     {
-        if (ModsFolder() is not string folder) return;
+        if (busy || ProfilePicker.SelectedItem is not Profile profile || IsRunning(profile) || ModsFolder() is not string folder) return;
         var dialog = new OpenFileDialog { Filter = "Fabric-Mod (*.jar)|*.jar" };
         if (dialog.ShowDialog(this) != true) return;
         busy = true;
@@ -379,7 +595,7 @@ public partial class MainWindow : Window
             Status.Text = "Wähle zuerst eine Mod.";
             return;
         }
-        try { ModManager.Toggle(entry); RefreshMods(); }
+        try { ModManager.Toggle(entry); RefreshMods(); ShowUpdates([]); }
         catch (InvalidDataException error) { Status.Text = error.Message; }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException)
         { Status.Text = "Die Mod konnte nicht umgeschaltet werden."; }
